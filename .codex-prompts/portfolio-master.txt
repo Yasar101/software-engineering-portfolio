@@ -1,0 +1,80 @@
+Audit the complete portfolio workspace and my GitHub repositories.
+
+Create:
+- PORTFOLIO_AUDIT.md
+- PORTFOLIO_PLAN.md
+- PORTFOLIO_STATUS.md
+
+Then continue autonomously through this loop:
+
+AUDIT
+→ PLAN
+→ IMPLEMENT
+→ TEST
+→ FIX
+→ DOCUMENT
+→ COMMIT
+→ UPDATE STATUS
+→ NEXT PROJECT
+
+Use professional engineering defaults for reversible, low-risk decisions.
+
+Do not ask me trivial implementation questions.
+
+Only involve me for:
+- major architecture changes
+- destructive actions
+- credentials
+- paid services
+- public/private repository changes
+- major project-scope changes
+
+Use Git and GitHub only inside this portfolio workspace.
+
+Do not interact with private trading projects.
+
+Target a professional beginner-to-advanced software-engineering portfolio including:
+1. Python CLI Calculator
+2. Personal Expense Tracker
+3. Weather Dashboard
+4. Task Manager Application
+5. Energy Calculator Pro
+6. PostgreSQL REST API
+7. Real-Time Monitoring Dashboard
+8. Microservices Commerce Platform
+9. AI Developer Assistant
+10. Distributed AI Systems Platform
+
+Also incorporate suitable existing repositories.
+
+Every substantial repository should have, where appropriate:
+- README.md
+- LICENSE
+- .gitignore
+- .env.example
+- src/
+- tests/
+- docs/
+- .github/workflows/
+
+Validate projects before marking them working.
+
+Run appropriate tests and builds.
+
+Never publish secrets.
+
+Do not delete repositories.
+Do not force push.
+Do not make private repositories public without explicit approval.
+
+Continue until substantially complete or blocked by a major decision.
+
+At a major stopping point report:
+1. projects completed
+2. projects improved
+3. tests passed
+4. repositories created
+5. commits made
+6. CI added
+7. blockers
+8. decisions requiring my input
