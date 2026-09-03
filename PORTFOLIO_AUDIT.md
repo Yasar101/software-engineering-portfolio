@@ -30,3 +30,25 @@ The supplied workspace contained only `.codex-prompts/portfolio-master.txt`. It 
 ## Quality baseline
 
 Projects are marked working only after their automated tests pass. The common baseline is Python 3.11+, deterministic unit tests, clear run instructions, type hints on public interfaces, no committed secrets, and CI validation.
+
+## Publication review
+
+Review date: 2026-09-03
+
+The portfolio is now a Git repository on branch `main`, tracking `origin/main` at `https://github.com/Yasar101/software-engineering-portfolio.git`. Before this review, the local tree was clean and both local and remote-tracking refs pointed to commit `c1fa5cf`. All 45 tracked files expected from the initial implementation were present, including ten project packages, tests, per-project READMEs, architecture documentation, licence, safe environment example, and CI.
+
+Live GitHub verification was attempted through GitHub CLI, Git transport, direct public pages, and public search. The CLI credential is invalid, the execution environment cannot resolve `github.com`, and the public-page service had no cached copies of these repositories. Consequently, live rendering, Actions results, repository metadata, and the contents of the five related repositories could not be independently verified. This is an evidence limitation, not a negative quality finding.
+
+## Existing repository review
+
+Only these owner-approved repositories were considered: `BasicPHP1`, `my-first-website1`, `aston-fitness-project`, `assignment2`, and `my-first-website`. No private or trading repository was accessed.
+
+Because source contents were unavailable, the review does not assert frameworks, features, ownership, or working status. A provisional name-level classification identifies `aston-fitness-project` as the strongest candidate for a future domain case study and `BasicPHP1` as possible language-breadth evidence. `assignment2` and the two first-website repositories should remain learning-history or conditional links until attribution, distinctiveness, and reproducibility are verified. The complete evidence gate is in `docs/EXISTING_REPOSITORIES.md`.
+
+## Presentation improvements
+
+- Reworked the central README around outcomes, engineering decisions, accurate maturity labels, navigation, validation, and security.
+- Added an Actions status badge, supported-Python badge, and licence badge.
+- Linked all ten project READMEs and all five explicitly approved related repositories.
+- Added a professional integration plan that clearly separates confirmed evidence from hypotheses.
+- Preserved every external repository name and visibility and made no remote mutations.

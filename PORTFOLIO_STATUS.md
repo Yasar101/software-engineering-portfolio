@@ -17,19 +17,30 @@ Last updated: 2026-09-03
 
 ## Current blockers
 
-- GitHub CLI authentication for `Yasar101` is invalid, and the GitHub API is unreachable. Remote repository audit and repository creation require the user to run `gh auth login -h github.com` when network access is available.
+- GitHub CLI authentication for `Yasar101` remains invalid, DNS cannot resolve `github.com`, and the public-page service has no cached content for the six repositories. Live repository content and Actions verification remain blocked until read-only access is restored.
 - Publishing or changing repository visibility requires explicit user approval and is not attempted.
-- The managed workspace denies creation of `.git`, so local repository initialization and commits are blocked by filesystem policy.
 
 ## Activity counters
 
 - Projects completed: 10 core/reference implementations
-- Projects improved: 0
+- Projects improved: 1 central portfolio presentation layer
 - Tests passed: 16
 - Repositories created remotely: 0
-- Commits made: 0 (blocked by `.git` filesystem permissions)
+- Commits made: 1 existing publication commit; presentation commit blocked because the managed workspace denies creation of `.git/index.lock`
 - CI workflows added: 1 (Python 3.11, 3.12, and 3.13)
 
 ## Validation evidence
 
 On 2026-09-03, all modules passed `compileall` and all 16 discovered unit tests passed on the available local Python 3.9 interpreter. CI is configured to repeat compilation and tests on the supported Python 3.11–3.13 matrix.
+
+## Repository integration status
+
+| Repository | Current classification | Evidence status |
+|---|---|---|
+| `aston-fitness-project` | Provisional featured candidate | Source review blocked |
+| `BasicPHP1` | Provisional supporting project | Source review blocked |
+| `assignment2` | Conditional learning/coursework evidence | Source review blocked |
+| `my-first-website` | Conditional learning-history project | Source review blocked |
+| `my-first-website1` | Conditional learning-history project | Source review blocked |
+
+No external repository was edited, renamed, deleted, or had its visibility changed. No private trading project was accessed.
