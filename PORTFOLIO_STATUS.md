@@ -1,6 +1,6 @@
 # Portfolio Status
 
-Last updated: 2026-09-03
+Last updated: 2026-09-05
 
 | # | Project | State | Validation |
 |---:|---|---|---|
@@ -15,32 +15,34 @@ Last updated: 2026-09-03
 | 9 | AI Developer Assistant | Working core | Retrieval/provider/safety tests passed |
 | 10 | Distributed AI Systems Platform | Working core | Lease, ownership, retry, and success tests passed |
 
-## Current blockers
+## Current status
 
-- GitHub CLI authentication for `Yasar101` remains invalid, DNS cannot resolve `github.com`, and the public-page service has no cached content for the six repositories. Live repository content and Actions verification remain blocked until read-only access is restored.
-- Publishing or changing repository visibility requires explicit user approval and is not attempted.
+- Remote GitHub access is restored and the central public repository is reachable.
+- The latest published portfolio commit is `454add554a15581ec292c1174de9ad218072645c` (`docs: complete portfolio presentation and repository review`).
+- GitHub Actions CI completed successfully for the latest commit on `main`.
+- Remaining work is host-side demo/publication verification for the wider supporting repositories and any final presentation polish; no visibility changes are required for the central repository.
 
 ## Activity counters
 
-- Projects completed: 10 core/reference implementations
-- Projects improved: 1 central portfolio presentation layer
-- Tests passed: 16
-- Repositories created remotely: 0
-- Commits made: 1 existing publication commit; presentation commit blocked because the managed workspace denies creation of `.git/index.lock`
-- CI workflows added: 1 (Python 3.11, 3.12, and 3.13)
+- Core/reference projects in the central portfolio: 10
+- Central portfolio presentation layer: published
+- Automated tests represented in the published portfolio: 16
+- Central public repository: 1
+- Published central commits: 2
+- CI workflow: active and passing on the latest `main` commit
 
 ## Validation evidence
 
-On 2026-09-03, all modules passed `compileall` and all 16 discovered unit tests passed on the available local Python 3.9 interpreter. CI is configured to repeat compilation and tests on the supported Python 3.11–3.13 matrix.
+On 2026-09-03, all central portfolio modules passed `compileall` and all 16 discovered unit tests passed on the available local Python 3.9 interpreter. CI is configured for Python 3.11, 3.12, and 3.13 and the latest GitHub Actions run for commit `454add554a15581ec292c1174de9ad218072645c` completed successfully.
 
 ## Repository integration status
 
 | Repository | Current classification | Evidence status |
 |---|---|---|
-| `aston-fitness-project` | Provisional featured candidate | Source review blocked |
-| `BasicPHP1` | Provisional supporting project | Source review blocked |
-| `assignment2` | Conditional learning/coursework evidence | Source review blocked |
-| `my-first-website` | Conditional learning-history project | Source review blocked |
-| `my-first-website1` | Conditional learning-history project | Source review blocked |
+| `aston-fitness-project` | Provisional featured candidate | Host/public verification still required |
+| `BasicPHP1` | Provisional supporting project | Host/public verification still required |
+| `assignment2` | Conditional learning/coursework evidence | Host/public verification still required |
+| `my-first-website` | Conditional learning-history project | Host/public verification still required |
+| `my-first-website1` | Conditional learning-history project | Host/public verification still required |
 
-No external repository was edited, renamed, deleted, or had its visibility changed. No private trading project was accessed.
+No private trading project is part of this public portfolio repository.
