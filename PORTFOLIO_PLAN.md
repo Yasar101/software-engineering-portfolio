@@ -1,44 +1,21 @@
-# Portfolio Delivery Plan
+# Portfolio roadmap
 
-## Strategy
+[Portfolio](README.md) · [Current evidence](PORTFOLIO_STATUS.md)
 
-Build one cohesive Python monorepo that demonstrates increasing engineering depth while keeping each project independently understandable. Shared conventions reduce maintenance, and isolated project packages make later repository extraction straightforward.
+## Delivered
 
-## Delivery sequence
+Ten documented Python implementations, offline examples, Git history, CI and release regression checks. The current release distinguishes tested local behavior from incomplete integrations. See PORTFOLIO_AUDIT.md for concrete fixes.
 
-1. Establish repository governance, CI, documentation, and test discovery.
-2. Implement foundational applications: calculator, expense tracker, weather dashboard, task manager, and energy calculator.
-3. Implement backend and systems applications: REST API, monitoring dashboard, commerce services, AI developer assistant, and distributed AI job platform.
-4. Run compile checks and the full test suite; fix failures before changing status.
-5. Commit coherent milestones and update `PORTFOLIO_STATUS.md` with evidence.
-6. Audit the five owner-approved GitHub repositories and classify them against the promotion gate after authenticated network access is restored.
-7. Improve qualifying repositories independently, preserving their names, visibility, and history.
-8. Promote only validated work in the central README and GitHub profile pins.
+## Next milestones — not completed claims
 
-## Definition of done
+1. Validate a real PostgreSQL adapter against an ephemeral database, preserving the repository contract. Add HTTP transport only with request/response integration tests.
+2. Choose one systems core for a durable-state milestone: define concurrency, restart and idempotency requirements before adding infrastructure.
+3. Evaluate the AI assistant with a consented synthetic dataset and a real provider; assess answer quality and data handling independently from unit tests.
+4. Add a small UI or transport demo where it materially improves inspection; do not rename a tested core as a deployed platform.
+5. Promote independently completed projects only when their source, tests, contribution boundaries and public availability can be verified.
 
-A project is complete when its core use case is implemented, its public behavior is documented, automated tests cover principal success and failure paths, and the project passes the repository-wide validation command. Integrations that require credentials must have safe configuration examples and mocked tests.
+Work one milestone at a time. Coverage tools, additional linters and dependency upgrades are optional follow-ups, not substitutes for meaningful behavior tests.
 
-## Architecture decisions
+## Release gate
 
-- Python 3.11+ provides a consistent learning progression across projects.
-- SQLite is used for local persistence and deterministic testing; the PostgreSQL project exposes repository boundaries suitable for a production driver.
-- Network-facing components separate transport code from domain logic.
-- Advanced projects are small reference implementations, not claims of production-scale infrastructure.
-
-## Existing repository integration
-
-Detailed criteria and sequencing are maintained in `docs/EXISTING_REPOSITORIES.md`.
-
-1. Inspect and validate `aston-fitness-project` first as the strongest provisional case-study candidate.
-2. Review `BasicPHP1` for safe server-side implementation and evidence of language breadth.
-3. Compare `my-first-website` with `my-first-website1`; feature at most one unless their differences tell a clear progression story.
-4. Review `assignment2` for attribution and original contribution before including it beyond learning history.
-5. Add accurate descriptions, topics, screenshots, CI, and profile pins only after content-based validation and with no visibility changes.
-
-## Next implementation milestones
-
-- Restore read-only GitHub access and complete the five source-level audits.
-- Convert the PostgreSQL reference boundary into a tested live adapter using an ephemeral CI service.
-- Add transport adapters or small demos for the weather, monitoring, and distributed-system cores.
-- Add coverage reporting and static analysis once they provide useful signal without obscuring the dependency-light setup.
+Compilation and all tests pass; examples run; links and claims match source; staged changes are reviewed for secrets/private data and accidental artifacts; public history is preserved. A reference release can be ready for employers while deployment integrations remain explicitly unimplemented.

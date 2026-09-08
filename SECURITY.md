@@ -1,12 +1,13 @@
-# Security Policy
+# Security policy
 
-## Reporting a vulnerability
+## Reporting
 
-Please do not open a public issue for a suspected vulnerability or exposed credential. Use GitHub's private vulnerability reporting feature for this repository when available, or contact the repository owner privately through their GitHub profile.
+Do not post vulnerability details, real credentials or personal data in public issues. Use GitHub private vulnerability reporting if it is available for this repository. If unavailable, open an issue asking the maintainer to arrange a private reporting channel, without including the vulnerability details.
 
-Include the affected project, reproduction steps, likely impact, and any suggested mitigation. Do not include real credentials or personal data in the report.
+## Scope
 
-## Supported code
+Fixes target the current main branch. These are educational local/reference implementations, not hardened production services. There is no deployment-level authentication, authorization, rate limiting or durable distributed infrastructure.
 
-Security fixes target the current `main` branch. The advanced projects are educational reference implementations and should receive deployment-specific authentication, authorization, rate limiting, observability, and durable infrastructure before production use.
+AI input screening is heuristic and can miss secrets. Never send sensitive source or personal data to an untrusted model provider. Payment compensation only restores local inventory; it does not undo or establish the outcome of an external payment.
 
+The current tests and examples require no secrets. Keep environment files, private keys, user data, databases and generated artifacts out of commits. A clean scan is useful evidence, not a guarantee of every possible secret format.

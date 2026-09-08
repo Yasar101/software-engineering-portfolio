@@ -54,7 +54,9 @@ class WeatherTests(unittest.TestCase):
 
 class TaskTests(unittest.TestCase):
     def test_create_complete_and_filter(self):
-        repository = TaskRepository(sqlite3.connect(":memory:"))
+        connection = sqlite3.connect(":memory:")
+        self.addCleanup(connection.close)
+        repository = TaskRepository(connection)
         task = repository.create("Ship portfolio")
         self.assertFalse(task.completed)
         self.assertTrue(repository.complete(task.id))

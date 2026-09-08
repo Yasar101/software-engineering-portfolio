@@ -45,7 +45,13 @@ class CommerceService:
         if sku not in self.prices or not self.inventory.reserve(sku, quantity):
             return Order(order_id, sku, quantity, Decimal("0"), OrderStatus.REJECTED, "unavailable")
         total = self.prices[sku] * quantity
-        if not payment(total):
+        try:
+            paid = payment(total)
+        except Exception:
+            # Restore local stock; the caller must reconcile an uncertain payment.
+            self.inventory.release(sku, quantity)
+            raise
+        if not paid:
             self.inventory.release(sku, quantity)
             return Order(order_id, sku, quantity, total, OrderStatus.REJECTED, "payment failed")
         return Order(order_id, sku, quantity, total, OrderStatus.CONFIRMED)

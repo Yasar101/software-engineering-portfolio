@@ -1,54 +1,45 @@
-# Portfolio Audit
+# Employer-facing release audit
 
-Audit date: 2026-09-03
+Audit date: 2026-09-08. Baseline: `142d697` on main. Prior audits remain in Git history; the findings below describe the current review.
 
-## Executive summary
+## Outcome
 
-The supplied workspace contained only `.codex-prompts/portfolio-master.txt`. It was not a Git repository and contained no application code, tests, documentation, CI, licences, or project metadata. A greenfield portfolio is therefore being created as a single, navigable monorepo. Each project remains independently runnable and can later be split into its own public repository without rewriting its package.
+Ten small implementations now have concise, executable documentation and explicit maturity labels. The release demonstrates programming, persistence, service contracts, tests, CI and systems/AI design boundaries without claiming real distributed infrastructure, a PostgreSQL deployment or a production AI agent.
 
-## Initial state
+## Findings and changes
 
-| Area | Finding | Action |
-|---|---|---|
-| Source code | No projects present | Build the ten requested projects in staged complexity |
-| Version control | No local Git repository; managed filesystem denies creation of `.git` | Initialize Git and create reviewable commits when Git metadata is writable |
-| GitHub | CLI account `Yasar101` has an invalid token; API is unreachable | Continue locally; re-authentication is a documented blocker |
-| Secrets | No secrets found | Add ignore rules and environment examples |
-| Tests | No test suite | Add standard-library unit tests and a unified test command |
-| CI | No automation | Add GitHub Actions for tests and compile checks |
-| Documentation | No portfolio documentation | Add root and per-project documentation |
-| Licensing | No licence | Add an MIT licence for original portfolio code |
+| Finding | Change | Evidence |
+| --- | --- | --- |
+| Per-project guides were mostly one paragraph | Added purpose, structure, offline example, focused tests, completed behavior, limits and a learning takeaway | All ten examples execute in test_documentation.py |
+| Navigation did not identify strongest inspectable work | Featured task persistence, commerce failure handling, worker leases and provider-boundary tests | Source-linked root table and architecture overview |
+| Audit/status files contained obsolete access blockers and stale latest-commit claims | Replaced with dated local evidence and live Actions navigation | PORTFOLIO_STATUS.md |
+| Payment exceptions leaked reservations | Restore inventory and propagate the exception; document unknown payment outcome | test_payment_exception_releases_reservation |
+| Expired workers could finish; exhausted expiry could strand RUNNING jobs | Check expiry at finish and terminalize exhausted leases on inspection/claim | Expired-worker and final-attempt regressions |
+| Invalid lease/retry settings and shared payload mutation | Validate finite positive leases/integer retry budget; copy payload snapshots | Configuration and mutation regressions |
+| Assistant screened only the question and left its size unbounded | Screen selected context/path, support quoted assignments, cap question/path sizes | Provider-not-called and length regressions |
+| Item service converted invalid name types to strings | Reject non-string names | API validation regression |
+| Calculator accepted non-finite operands | Reject NaN/Infinity before arithmetic | Finite-operand regression |
+| Environment template implied configuration the code never read | State that current examples need no environment file | .env.example and root instructions |
 
-## Risk and scope controls
+Eleven new regression tests reproduced the defects before the changes. The original 16 tests remain; two documentation tests bring the suite to 29. One initial regression invocation was made outside the repository root and failed discovery; the recorded behavior failures and final passing results used the documented repository-root command.
 
-- No external repositories were cloned, changed, deleted, or published.
-- No private repositories, including trading projects, were accessed.
-- Remote repository visibility cannot be assessed until GitHub authentication is restored.
-- Local commit creation cannot proceed because the workspace grants read-only special access to `.git` and rejects `git init`.
-- The initial implementation avoids paid services and credentials and uses Python's standard library where practical.
+## Release evidence
 
-## Quality baseline
+Compilation, all 29 tests, all ten offline examples, relative links and `git diff --check` pass on Python 3.13.13. Public Markdown links returned HTTP 200. CI uses the same compile/test commands on Python 3.11–3.13; its remote result is available through Actions and is not inferred from local tests.
 
-Projects are marked working only after their automated tests pass. The common baseline is Python 3.11+, deterministic unit tests, clear run instructions, type hints on public interfaces, no committed secrets, and CI validation.
+Before publication, proposed files were reviewed for environment files, credentials, key/token patterns, personal data, databases, runtime artifacts, symlinks and oversized files. Four pattern matches were regex source or clearly synthetic negative-test values; none was an unresolved credential. No non-example .env or private-key filenames were found in repository history. A bounded scan is not an exhaustive guarantee about all possible secrets.
 
-## Publication review
+The original histories and repository visibility are preserved. Only the two authorized existing employer repositories are publication targets. New public repositories, private source and unrelated projects are outside this release.
 
-Review date: 2026-09-03
+## Employer review
 
-The portfolio is now a Git repository on branch `main`, tracking `origin/main` at `https://github.com/Yasar101/software-engineering-portfolio.git`. Before this review, the local tree was clean and both local and remote-tracking refs pointed to commit `c1fa5cf`. All 45 tracked files expected from the initial implementation were present, including ten project packages, tests, per-project READMEs, architecture documentation, licence, safe environment example, and CI.
+| Reader | Two-minute inspection route | Honest boundary |
+| --- | --- | --- |
+| Junior software engineer employer | Calculator, expense model, run/test commands | Small comprehensible programs rather than claims of seniority |
+| Backend employer | TaskManager SQL and REST service tests | Actual SQLite; PostgreSQL and HTTP adapters remain absent |
+| Systems employer | Commerce compensation, scheduler expiry and architecture notes | Process-local models; no durable distributed deployment |
+| AI / automation employer | Assistant retrieval and fake-provider failure tests | No live-model quality evaluation or autonomous agent |
 
-Live GitHub verification was attempted through GitHub CLI, Git transport, direct public pages, and public search. The CLI credential is invalid, the execution environment cannot resolve `github.com`, and the public-page service had no cached copies of these repositories. Consequently, live rendering, Actions results, repository metadata, and the contents of the five related repositories could not be independently verified. This is an evidence limitation, not a negative quality finding.
+## Remaining work
 
-## Existing repository review
-
-Only these owner-approved repositories were considered: `BasicPHP1`, `my-first-website1`, `aston-fitness-project`, `assignment2`, and `my-first-website`. No private or trading repository was accessed.
-
-Because source contents were unavailable, the review does not assert frameworks, features, ownership, or working status. A provisional name-level classification identifies `aston-fitness-project` as the strongest candidate for a future domain case study and `BasicPHP1` as possible language-breadth evidence. `assignment2` and the two first-website repositories should remain learning-history or conditional links until attribution, distinctiveness, and reproducibility are verified. The complete evidence gate is in `docs/EXISTING_REPOSITORIES.md`.
-
-## Presentation improvements
-
-- Reworked the central README around outcomes, engineering decisions, accurate maturity labels, navigation, validation, and security.
-- Added an Actions status badge, supported-Python badge, and licence badge.
-- Linked all ten project READMEs and all five explicitly approved related repositories.
-- Added a professional integration plan that clearly separates confirmed evidence from hypotheses.
-- Preserved every external repository name and visibility and made no remote mutations.
+Future adapters and product-level interfaces are documented in PORTFOLIO_PLAN.md. Known reference limitations include scheduler fencing and durability, commerce idempotency and payment reconciliation, metrics cardinality, expense-file recovery, and heuristic AI screening. These are visible scope limits, not hidden passing-test claims. Earlier web repositories have not been source-audited here and are not featured from their names alone.

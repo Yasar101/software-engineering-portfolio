@@ -31,6 +31,8 @@ def calculate(expression: str) -> Decimal:
         left, right = Decimal(parts[0]), Decimal(parts[2])
     except InvalidOperation as exc:
         raise CalculationError("operands must be numbers") from exc
+    if not left.is_finite() or not right.is_finite():
+        raise CalculationError("operands must be finite numbers")
     return OPERATIONS[parts[1]](left, right)
 
 

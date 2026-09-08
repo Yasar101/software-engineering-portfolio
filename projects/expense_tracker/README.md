@@ -1,4 +1,49 @@
 # Personal Expense Tracker
 
-Models validated expenses, category summaries, monthly reports, and portable JSON persistence. Monetary values use `Decimal` to avoid binary floating-point errors.
+**TESTED** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md)
 
+A local expense model with category/monthly totals and JSON save/load.
+
+## Purpose and engineering skills
+
+Explore domain modelling, money representation and persistence round trips.
+
+## Structure
+
+tracker.py contains an immutable Expense and a tracker with a JSON adapter. [Source](tracker.py).
+
+## Run
+
+From the repository root with Python 3.11+, run this offline example using `python3` (no dependencies or credentials):
+
+```python
+from datetime import date
+from decimal import Decimal
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from projects.expense_tracker import Expense, ExpenseTracker
+tracker = ExpenseTracker([Expense(Decimal("4.50"), "food", date(2026, 9, 1))])
+with TemporaryDirectory() as directory:
+    path = Path(directory) / "expenses.json"
+    tracker.save(path)
+    assert ExpenseTracker.load(path).total_for_month(2026, 9) == Decimal("4.50")
+```
+
+## Test
+
+```sh
+python3 -m unittest tests.test_foundations.ExpenseTests -v
+python3 -m unittest discover -s tests -v
+```
+
+The full suite also includes release regression tests and executes these README examples.
+
+## Complete and remaining
+
+**Complete:** Positive-amount/category validation, reports and a tested save/load round trip.
+
+**Remaining / limitations:** No UI, encryption, atomic writes, concurrent-writer support or comprehensive corrupt-file recovery. Use synthetic data for evaluation.
+
+## Learning takeaway
+
+Serializing decimals as strings preserves money values across JSON round trips.

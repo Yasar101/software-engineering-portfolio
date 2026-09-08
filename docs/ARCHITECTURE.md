@@ -1,8 +1,43 @@
-# Architecture
+# Architecture and engineering progression
 
-The portfolio is a modular monorepo. Each numbered directory is a Python package with a narrow domain boundary. Tests import packages through the repository root, so no installation step is required for development.
+[Portfolio](../README.md)
 
-The first five projects emphasize correctness and local application design. Projects six through ten demonstrate ports-and-adapters boundaries: domain logic does not depend on HTTP servers, databases, model vendors, or worker processes. Those adapters can therefore be replaced without changing the tested core.
+This is a modular Python monorepo. Each named project directory is a package; commands run from the repository root without installation. The common test suite exercises behavior and README examples. Shared conventions do not imply that the projects form one deployed system.
 
-The CI workflow performs syntax compilation and discovers all unit tests on supported Python versions. External APIs are never called by tests.
+## Boundaries at a glance
 
+```mermaid
+flowchart LR
+    Caller[Caller or offline example] --> Domain[Project domain or service]
+    Domain --> Local[Local state: JSON, SQLite or memory]
+    Domain --> Port[Injected boundary where implemented]
+    Port --> Fake[Test provider or callback]
+```
+
+This diagram summarizes recurring boundaries, not a universal plugin framework. The weather module has a concrete HTTP function alongside a separately testable parser. TaskManager depends directly on sqlite3. Commerce injects a payment callable; the assistant injects a provider. Only the REST reference defines a repository Protocol.
+
+## Progression and trade-offs
+
+| Stage | Concrete evidence | Design question |
+| --- | --- | --- |
+| Programming | Calculator operator table and finite-number checks | What inputs are accepted and how do failures surface? |
+| Data and persistence | Expense JSON round trip; SQLite task queries | Who owns state, serialization and the database connection? |
+| APIs and backend | Weather parser; item service returning status/body pairs | What can be verified without the network or a real database adapter? |
+| Reliability | Bounded metric histories; inventory compensation | Which resources are bounded, and what does rollback actually restore? |
+| AI integration | Context retrieval and an injected provider | What is sent to a provider, and what safety claims are unsupported? |
+| Systems design | Locked scheduler with leases and retry limits | How do crashed workers expire, and what remains process-local? |
+
+## Failure semantics worth inspecting
+
+- Payment rejection returns a rejected order and restores stock. Exceptions also restore local stock and propagate; an uncertain external charge needs reconciliation, not blind retry.
+- Scheduler finish rejects an expired lease or the wrong worker. Expired final attempts become FAILED when get/claim inspects state. Unique worker identities are required per execution attempt because there is no fencing token.
+- The assistant rejects oversized questions and likely secret patterns in selected documents/path names before invoking its provider. This is not comprehensive secret detection, prompt-injection protection or answer-quality evaluation.
+- Metrics bound samples per metric, not the number of metric names. The scheduler and commerce store are not durable.
+
+## What is not implemented
+
+There is no running PostgreSQL adapter, HTTP REST server, distributed queue, service deployment, live LLM test, authentication system or load-test evidence. Adding these is future work, not required to inspect the existing reference behavior. Individual project READMEs list narrower limits.
+
+## Verification and recovery
+
+Run the root compile/test commands. CI uses the same commands on three Python versions, with read-only repository permissions and no credentials. Clone an existing Git commit or tag into an unused directory to inspect an earlier version; no generated databases or external services are needed for the tests.

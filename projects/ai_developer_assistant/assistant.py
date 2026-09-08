@@ -6,7 +6,10 @@ from typing import Callable
 
 
 TOKEN = re.compile(r"[a-zA-Z_][a-zA-Z0-9_]+")
-SECRET = re.compile(r"(?i)(api[_-]?key|token|password)\s*[=:]\s*\S+")
+SECRET = re.compile(
+    r"(?i)(api[_-]?key|token|password)[\"']?\s*[=:]\s*\S+"
+    r"|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"
+)
 
 
 @dataclass(frozen=True)
@@ -25,9 +28,15 @@ class DeveloperAssistant:
         return [doc for doc in ranked if terms & {word.lower() for word in TOKEN.findall(doc.content)}][:limit]
 
     def answer(self, question: str) -> str:
+        if len(question) > 4000:
+            raise ValueError("question must be at most 4000 characters")
         if SECRET.search(question):
             raise ValueError("potential secret detected; redact credentials before continuing")
         context = self.retrieve(question)
+        if any(SECRET.search(doc.path) or SECRET.search(doc.content) for doc in context):
+            raise ValueError("potential secret detected in repository context")
+        if any(len(doc.path) > 256 for doc in context):
+            raise ValueError("context path must be at most 256 characters")
         excerpts = "\n\n".join(f"FILE: {doc.path}\n{doc.content[:2000]}" for doc in context)
         prompt = f"Answer using only the supplied repository context.\n\n{excerpts}\n\nQUESTION: {question}"
         return self.provider(prompt)

@@ -42,7 +42,8 @@ class ItemService:
         self.repository = repository
 
     def create(self, payload: dict[str, object]) -> tuple[int, dict[str, object]]:
-        name = str(payload.get("name", "")).strip()
+        raw_name = payload.get("name", "")
+        name = raw_name.strip() if isinstance(raw_name, str) else ""
         price = payload.get("price_pence")
         if not name or not isinstance(price, int) or isinstance(price, bool) or price < 0:
             return 422, {"error": "name and non-negative integer price_pence are required"}
