@@ -2,6 +2,9 @@
 
 Reviewed 2026-09-08. This is an employer-facing reference portfolio, not a production deployment claim.
 
+## Earlier release environment boundaries
+Last updated: 2026-09-05
+
 ## Validation
 
 - Python 3.13.13: `python3 -m compileall -q projects` passed.
@@ -12,6 +15,11 @@ Reviewed 2026-09-08. This is an employer-facing reference portfolio, not a produ
 - CI configuration: Python 3.11/3.12/3.13 matrix, compile and full test commands, read-only contents permissions and five-minute job timeout. Local results do not assert a remote CI result: [inspect current Actions runs](https://github.com/Yasar101/software-engineering-portfolio/actions/workflows/ci.yml).
 
 ## Implemented scope
+
+## Release validation history
+- GitHub CLI authentication for `Yasar101` remains invalid, DNS cannot resolve `github.com`, and the public-page service has no cached content for the six repositories. Live repository content and Actions verification remain blocked until read-only access is restored.
+- This managed host also denies loopback socket binding, so the REST API was verified through its route-level unit test rather than a local HTTP listener.
+- Publishing or changing repository visibility requires explicit user approval and is not attempted.
 
 | Project | Status | Remaining boundary |
 | --- | --- | --- |
@@ -27,3 +35,28 @@ Reviewed 2026-09-08. This is an employer-facing reference portfolio, not a produ
 | Scheduler Core | TESTED CORE | Single-process memory; no persistence or fencing token |
 
 See each project README for its working example and limitations. No unreviewed supporting repository is promoted as validated work.
+
+### 2026-09-05 release snapshot
+
+- Projects completed: 10 core/reference implementations
+- Projects improved: 1 central portfolio presentation layer
+- Tests passed: 17
+- Repositories created remotely: 0
+- Commits made: 2 existing publication commits; the validated presentation update is ready to commit and push
+- CI workflows added: 1 (Python 3.11, 3.12, and 3.13)
+
+## Validation evidence
+
+On 2026-09-05, all modules passed `compileall` and all 17 discovered unit tests passed on the available local Python 3.9 interpreter. The host redirects bytecode to a protected cache, so the local command used `PYTHONPYCACHEPREFIX` pointing to a permitted temporary directory; no source change was required. CI is configured to repeat compilation and tests on the supported Python 3.11–3.13 matrix. The static site was syntax-checked with Node and the working tree passed `git diff --check`. All ten local project demonstrations were exercised: the weather example used its documented offline fixture, and the REST API's HTTP routes were covered by the route-level test because this host blocks socket binding.
+
+## Repository integration status
+
+| Repository | Current classification | Evidence status |
+|---|---|---|
+| `aston-fitness-project` | Provisional featured candidate | Source review blocked |
+| `BasicPHP1` | Provisional supporting project | Source review blocked |
+| `assignment2` | Conditional learning/coursework evidence | Source review blocked |
+| `my-first-website` | Conditional learning-history project | Source review blocked |
+| `my-first-website1` | Conditional learning-history project | Source review blocked |
+
+No external repository was edited, renamed, deleted, or had its visibility changed. No private trading project was accessed.

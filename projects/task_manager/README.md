@@ -47,3 +47,17 @@ The full suite also includes release regression tests and executes these README 
 ## Learning takeaway
 
 Connection ownership and parameterized queries are useful boundaries even in a small repository.
+
+## Command-line demonstration
+An SQLite-backed repository with validated task creation, explicit completion transitions, and status filtering.
+
+Run a persistent local workflow:
+
+```bash
+python3 -m projects.task_manager --database tasks.sqlite3 add "Prepare demo"
+python3 -m projects.task_manager --database tasks.sqlite3 complete 1
+python3 -m projects.task_manager --database tasks.sqlite3 delete 1
+python3 -m projects.task_manager --database tasks.sqlite3 list --status completed
+```
+
+`tasks.sqlite3` is local user data and should not be committed.

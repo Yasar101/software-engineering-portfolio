@@ -40,3 +40,13 @@ The full suite also includes release regression tests and executes these README 
 ## Learning takeaway
 
 A presentation model can be validated without making a flaky live API call.
+
+## Command-line demonstration
+Fetch current conditions when network access is available:
+
+```bash
+python3 -m projects.weather_dashboard 51.5072 -0.1276
+```
+
+The CLI validates coordinates and provider failures. For an offline, deterministic
+fixture demonstration, run `python3 demo.py weather` from the repository root.

@@ -42,3 +42,12 @@ The full suite also includes release regression tests and executes these README 
 ## Learning takeaway
 
 Units and rounding choices belong in the domain contract, not just display code.
+
+## Command-line demonstration
+Run a transparent local estimate:
+
+```bash
+python3 -m projects.energy_calculator --watts 850 --hours 3.5 --days 30 --tariff 0.28
+```
+
+This is an estimate from supplied values, not a supplier integration.

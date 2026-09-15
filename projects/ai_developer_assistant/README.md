@@ -40,3 +40,12 @@ The full suite also includes release regression tests and executes these README 
 ## Learning takeaway
 
 A fake provider tests the integration contract, not model answer quality or comprehensive AI safety.
+
+## Command-line demonstration
+Run a safe local demonstration:
+
+```bash
+python3 -m projects.ai_developer_assistant "Where is token refresh handled?"
+```
+
+The included provider is deterministic and local. Inputs containing likely credentials are rejected before any provider is invoked.

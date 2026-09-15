@@ -43,3 +43,13 @@ The full suite also includes release regression tests and executes these README 
 ## Learning takeaway
 
 A lease needs expiry and exhaustion semantics; a process-local lock is not a distributed consistency mechanism.
+
+## Command-line demonstration
+Run an explicit local lifecycle demonstration:
+
+```bash
+python3 -m projects.distributed_ai_platform
+python3 -m projects.distributed_ai_platform --fail
+```
+
+Workers and storage are simulated in-process; this is not deployed distributed infrastructure.

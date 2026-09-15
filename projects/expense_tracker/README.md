@@ -47,3 +47,15 @@ The full suite also includes release regression tests and executes these README 
 ## Learning takeaway
 
 Serializing decimals as strings preserves money values across JSON round trips.
+
+## Command-line demonstration
+Run a real local persistence flow:
+
+```bash
+python3 -m projects.expense_tracker --file expenses.json add 12.50 food --note "Lunch"
+python3 -m projects.expense_tracker --file expenses.json list
+python3 -m projects.expense_tracker --file expenses.json list --category food --month 2026-09
+python3 -m projects.expense_tracker --file expenses.json summary --month 2026-09
+```
+
+`expenses.json` is local user data and should not be committed.

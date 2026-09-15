@@ -79,3 +79,28 @@ class JobScheduler:
         with self._lock:
             self._expire_exhausted(self.clock())
             return deepcopy(self._jobs[job_id])
+
+
+def main() -> None:
+    """Demonstrate an in-process job claim and completion lifecycle."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run a local distributed-job scheduler demonstration.")
+    parser.add_argument("--worker", default="demo-worker")
+    parser.add_argument("--fail", action="store_true", help="return the claimed job to the queue")
+    args = parser.parse_args()
+    scheduler = JobScheduler(max_attempts=2)
+    submitted = scheduler.submit({"model": "demo-small", "data": "fictional"})
+    claimed = scheduler.claim(args.worker, lease_seconds=30)
+    assert claimed is not None
+    finished = scheduler.finish(claimed.id, args.worker, not args.fail)
+    print("Infrastructure: in-process scheduler; worker is simulated.")
+    print(f"Submitted: {submitted.id} ({submitted.state.value})")
+    print(f"Claimed by {args.worker}; attempt {claimed.attempts}; lease seconds: 30")
+    print(f"Final state: {finished.state.value}")
+    if args.fail:
+        print("Failure remains retryable until the configured attempt limit is reached.")
+
+
+if __name__ == "__main__":
+    main()

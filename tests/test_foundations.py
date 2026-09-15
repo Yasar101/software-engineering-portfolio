@@ -32,6 +32,7 @@ class ExpenseTests(unittest.TestCase):
         ])
         self.assertEqual(tracker.totals_by_category()["food"], Decimal("12.50"))
         self.assertEqual(tracker.total_for_month(2026, 9), Decimal("14.75"))
+        self.assertEqual([item.category for item in tracker.filter("FOOD", 2026, 9)], ["food"])
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "expenses.json"
             tracker.save(path)
@@ -62,6 +63,8 @@ class TaskTests(unittest.TestCase):
         self.assertTrue(repository.complete(task.id))
         self.assertEqual([item.title for item in repository.list(True)], ["Ship portfolio"])
         self.assertEqual(repository.list(False), [])
+        self.assertTrue(repository.delete(task.id))
+        self.assertFalse(repository.delete(task.id))
 
 
 class EnergyTests(unittest.TestCase):

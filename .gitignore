@@ -6,8 +6,11 @@ htmlcov/
 .venv/
 venv/
 .env
+.codex-prompts/
 *.db
 *.sqlite*
+expenses.json
+tasks.sqlite3
 .DS_Store
 .idea/
 .vscode/

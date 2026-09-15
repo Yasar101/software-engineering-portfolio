@@ -43,3 +43,12 @@ The full suite also includes release regression tests and executes these README 
 ## Learning takeaway
 
 A protocol makes the intended persistence boundary reviewable without pretending a live adapter exists.
+
+## Command-line demonstration
+Run a local HTTP demonstration (uses the in-memory adapter, not PostgreSQL):
+
+```bash
+python3 -m projects.postgres_rest_api
+curl http://127.0.0.1:8001/health
+curl -X POST http://127.0.0.1:8001/items -H 'Content-Type: application/json' -d '{"name":"Keyboard","price_pence":7500}'
+```

@@ -40,3 +40,30 @@ class DeveloperAssistant:
         excerpts = "\n\n".join(f"FILE: {doc.path}\n{doc.content[:2000]}" for doc in context)
         prompt = f"Answer using only the supplied repository context.\n\n{excerpts}\n\nQUESTION: {question}"
         return self.provider(prompt)
+
+
+def main() -> None:
+    """Run a credential-safe local retrieval demonstration."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Ask a local, provider-neutral repository assistant.")
+    parser.add_argument("question")
+    args = parser.parse_args()
+    documents = [
+        ContextDocument("auth.py", "OAuth token refresh handler and expiry checks."),
+        ContextDocument("money.py", "Decimal calculations avoid binary floating point rounding."),
+        ContextDocument("jobs.py", "Workers claim jobs with expiring leases."),
+    ]
+    assistant = DeveloperAssistant(documents, lambda _: "Local demo provider: context was retrieved and bounded; connect a provider callable for generated answers.")
+    try:
+        context = assistant.retrieve(args.question)
+        answer = assistant.answer(args.question)
+    except ValueError as exc:
+        parser.error(str(exc))
+    print("Provider: local deterministic demo (no API key or external model call).")
+    print("Retrieved:", ", ".join(document.path for document in context) or "no matching documents")
+    print("Answer:", answer)
+
+
+if __name__ == "__main__":
+    main()

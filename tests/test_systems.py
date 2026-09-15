@@ -1,4 +1,5 @@
 from decimal import Decimal
+from io import BytesIO
 import unittest
 
 from projects.ai_developer_assistant.assistant import ContextDocument, DeveloperAssistant
@@ -6,6 +7,7 @@ from projects.distributed_ai_platform.scheduler import JobScheduler, JobState
 from projects.microservices_commerce.commerce import CommerceService, Inventory, OrderStatus
 from projects.monitoring_dashboard.monitoring import MetricWindow
 from projects.postgres_rest_api.api import ItemService, MemoryItemRepository
+from projects.postgres_rest_api.server import make_handler
 
 
 class ApiTests(unittest.TestCase):
@@ -16,6 +18,35 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(service.retrieve(created["id"]), (200, created))
         self.assertEqual(service.create({"name": ""})[0], 422)
         self.assertEqual(service.retrieve(99)[0], 404)
+
+    def test_http_transport_routes_and_rejects_bad_requests(self):
+        service = ItemService(MemoryItemRepository())
+        handler = make_handler(service)
+
+        class FakeRequest:
+            def __init__(self, path, body=b"", length=None):
+                self.path, self.rfile = path, BytesIO(body)
+                self.headers = {"Content-Length": str(len(body) if length is None else length)}
+                self.response = None
+
+            def _send(self, status, body):
+                self.response = (status, body)
+
+        health = FakeRequest("/health")
+        handler.do_GET(health)
+        self.assertEqual(health.response, (200, {"status": "ok", "storage": "in-memory demo adapter"}))
+        create = FakeRequest("/items", b'{"name":"Keyboard","price_pence":7500}')
+        handler.do_POST(create)
+        self.assertEqual(create.response[0], 201)
+        item = FakeRequest("/items/1")
+        handler.do_GET(item)
+        self.assertEqual(item.response[1]["name"], "Keyboard")
+        invalid = FakeRequest("/items", b"not-json")
+        handler.do_POST(invalid)
+        self.assertEqual(invalid.response[0], 400)
+        oversized = FakeRequest("/items", length=16_385)
+        handler.do_POST(oversized)
+        self.assertEqual(oversized.response[0], 400)
 
 
 class MonitoringTests(unittest.TestCase):

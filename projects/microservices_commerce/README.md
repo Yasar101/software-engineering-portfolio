@@ -44,3 +44,12 @@ The full suite also includes release regression tests and executes these README 
 ## Learning takeaway
 
 Compensation restores local state; it cannot prove or reverse an external payment outcome.
+
+## Command-line demonstration
+Exercise a fictional local transaction and its compensation path:
+
+```bash
+python3 -m projects.microservices_commerce --decline-payment
+```
+
+This is an in-process workflow demonstration, not deployed microservices.

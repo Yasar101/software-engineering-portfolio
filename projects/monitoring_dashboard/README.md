@@ -43,3 +43,10 @@ The full suite also includes release regression tests and executes these README 
 ## Learning takeaway
 
 Bounding samples is different from bounding total cardinality; both matter for a real monitoring service.
+
+## Command-line demonstration
+Run a local telemetry demonstration. Values are explicitly simulated:
+
+```bash
+python3 -m projects.monitoring_dashboard latency_ms 112 128 146 121 --threshold 130 --capacity 4
+```
