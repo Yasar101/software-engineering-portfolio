@@ -38,6 +38,10 @@ This diagram summarizes recurring boundaries, not a universal plugin framework. 
 
 There is no running PostgreSQL adapter, HTTP REST server, distributed queue, service deployment, live LLM test, authentication system or load-test evidence. Adding these is future work, not required to inspect the existing reference behavior. Individual project READMEs list narrower limits.
 
+## Presentation layer
+
+The static site in [`index.html`](../index.html) is a thin, dependency-free shell. [`portfolio-data.js`](../portfolio-data.js) is the single source of truth for the 15 featured projects (`name`, `repo`, `demo`, status and focus); `script.js` renders cards and the demo modal, `styles.css` provides a light-first responsive theme, and the GitHub Pages workflow copies the [offline demos](../demos/) next to the site. Each demo avoids external calls and marks simulation/animation boundaries explicitly, so inspecting a project never requires a live provider or credentials.
+
 ## Verification and recovery
 
 Run the root compile/test commands. CI uses the same commands on three Python versions, with read-only repository permissions and no credentials. Clone an existing Git commit or tag into an unused directory to inspect an earlier version; no generated databases or external services are needed for the tests.

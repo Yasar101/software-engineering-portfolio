@@ -1,6 +1,6 @@
 # Python CLI Calculator
 
-**TESTED** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md)
+**TESTED** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md) · [Live demo](https://yasar101.github.io/software-engineering-portfolio/demos/calculator.html)
 
 A command-line calculator for one explicit binary operation.
 

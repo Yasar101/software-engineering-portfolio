@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive browser simulation of the personal expense tracker portfolio project.">
+  <title>Expense Tracker — interactive demo</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main class="demo-shell">
+  <p class="eyebrow">Portfolio project · Personal Expense Tracker</p>
+  <h1>Track spending by category and month</h1>
+  <p class="muted">A browser simulation of the JSON-backed expense tracker. Entries are stored
+    only in <strong>browser localStorage</strong> on this device, mirroring the local-file
+    behavior of the original Python project.</p>
+
+  <section class="metrics" aria-label="Current totals">
+    <div class="metric"><div class="label">All-time total</div><div class="value" id="total-all">£0.00</div></div>
+    <div class="metric"><div class="label">This month</div><div class="value" id="total-month">£0.00</div></div>
+    <div class="metric"><div class="label">Categories</div><div class="value" id="count-categories">0</div></div>
+    <div class="metric"><div class="label">Entries</div><div class="value" id="count-entries">0</div></div>
+  </section>
+
+  <div class="grid grid-2" style="margin-top:1rem">
+    <section class="card">
+      <h2>Add an expense</h2>
+      <form id="expense-form">
+        <div class="row">
+          <div class="field"><label for="amount">Amount (GBP)</label><input id="amount" type="number" min="0.01" step="0.01" value="12.50" required></div>
+          <div class="field"><label for="category">Category</label><input id="category" type="text" value="food" list="categories-list" required></div>
+        </div>
+        <div class="row" style="margin-top:.7rem">
+          <div class="field"><label for="spent_on">Date</label><input id="spent_on" type="date" required></div>
+          <div class="field"><label for="note">Note (optional)</label><input id="note" type="text" placeholder="e.g. Demo groceries"></div>
+        </div>
+        <div class="row" style="margin-top:1rem">
+          <button type="submit">Save expense</button>
+          <button type="button" class="secondary" id="seed-btn">Seed demo data</button>
+        </div>
+      </form>
+      <datalist id="categories-list"><option value="food"></option><option value="travel"></option><option value="bills"></option><option value="fun"></option></datalist>
+      <p id="expense-status" class="status" role="status"></p>
+    </section>
+
+    <section class="card">
+      <h2>Review</h2>
+      <div class="row">
+        <div class="field"><label for="filter-category">Filter category</label>
+          <select id="filter-category"><option value="">All categories</option></select>
+        </div>
+        <div class="field"><label for="filter-month">Filter month</label>
+          <select id="filter-month"><option value="">All months</option></select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:.6rem">
+        <button type="button" class="ghost" id="clear-btn">Clear all local data</button>
+        <span class="muted mono" id="filter-summary" style="font-size:.8rem"></span>
+      </div>
+      <ul id="expense-list" class="list" style="margin-top:.8rem"></ul>
+      <h3 style="margin-top:1rem">Totals by category</h3>
+      <table>
+        <thead><tr><th>Category</th><th>Total</th></tr></thead>
+        <tbody id="category-totals"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>How this mirrors the Python project</h2>
+    <ul class="list">
+      <li><span><strong>Positive amounts only</strong> — non-positive amounts are rejected.</span><span class="badge badge-ok">Validated</span></li>
+      <li><span><strong>JSON round-trip</strong> — entries persist as structured JSON (here in localStorage; in Python a local file).</span><span class="badge badge-ok">Persisted</span></li>
+      <li><span><strong>Category/month totals</strong> — same calculations as <code>ExpenseTracker</code>.</span><span class="badge badge-neutral">Simulation</span></li>
+      <li><span><strong>No network</strong> — nothing leaves this device.</span><span class="badge badge-warn">Offline</span></li>
+    </ul>
+    <pre class="log">python3 -m projects.expense_tracker --file expenses.json add 12.50 food --note "Demo groceries"
+python3 -m projects.expense_tracker --file expenses.json list --category food</pre>
+  </section>
+</main>
+<script>
+window.DEMO = {
+  name: "Expense Tracker",
+  title: "Expense Tracker — local persistence demo",
+  kind: "interactive demo",
+  caption: "browser simulation · offline",
+  repo: "https://github.com/Yasar101/personal-expense-tracker"
+};
+</script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  const KEY = "ysse-expense-demo-v1";
+  const money = value => "£" + Number(value).toFixed(2);
+
+  let expenses = [];
+  const load = () => {
+    try { expenses = JSON.parse(localStorage.getItem(KEY)) || []; } catch { expenses = []; }
+  };
+  const persist = () => localStorage.setItem(KEY, JSON.stringify(expenses));
+  load();
+
+  const form = document.querySelector("#expense-form");
+  const listEl = document.querySelector("#expense-list");
+  const status = document.querySelector("#expense-status");
+  const categoryFilter = document.querySelector("#filter-category");
+  const monthFilter = document.querySelector("#filter-month");
+  const categoryTotals = document.querySelector("#category-totals");
+
+  const today = () => new Date().toISOString().slice(0, 10);
+  document.querySelector("#spent_on").value = today();
+
+  const refreshOptions = () => {
+    const categories = [...new Set(expenses.map(item => item.category))].sort();
+    const months = [...new Set(expenses.map(item => item.spent_on.slice(0, 7)))].sort().reverse();
+    const fill = (select, values, placeholder) => {
+      const keep = select.value;
+      select.innerHTML = "";
+      select.add(new Option(placeholder, ""));
+      values.forEach(value => select.add(new Option(value, value)));
+      if ([...select.options].some(option => option.value === keep)) select.value = keep;
+    };
+    fill(categoryFilter, categories, "All categories");
+    fill(monthFilter, months, "All months");
+  };
+
+  const filtered = () => {
+    const category = categoryFilter.value.toLowerCase();
+    const month = monthFilter.value;
+    return expenses.filter(item =>
+      (!category || item.category.toLowerCase() === category) &&
+      (!month || item.spent_on.startsWith(month))
+    );
+  };
+
+  const render = () => {
+    const month = new Date().toISOString().slice(0, 7);
+    const allTotal = expenses.reduce((sum, item) => sum + Number(item.amount), 0);
+    const monthTotal = expenses.filter(item => item.spent_on.startsWith(month)).reduce((sum, item) => sum + Number(item.amount), 0);
+    document.querySelector("#total-all").textContent = money(allTotal);
+    document.querySelector("#total-month").textContent = money(monthTotal);
+    document.querySelector("#count-categories").textContent = new Set(expenses.map(item => item.category)).size;
+    document.querySelector("#count-entries").textContent = expenses.length;
+
+    const rows = filtered();
+    document.querySelector("#filter-summary").textContent = `${rows.length} of ${expenses.length} entries`;
+    listEl.innerHTML = "";
+    if (!rows.length) {
+      const li = document.createElement("li");
+      li.textContent = "No matching expenses yet.";
+      li.className = "muted";
+      listEl.appendChild(li);
+    }
+    rows.slice().reverse().forEach(item => {
+      const li = document.createElement("li");
+      const left = document.createElement("span");
+      const strong = document.createElement("strong");
+      strong.textContent = item.category;
+      const detail = document.createElement("span");
+      detail.className = "detail";
+      detail.textContent = `${item.spent_on}${item.note ? " · " + item.note : ""}`;
+      left.appendChild(strong);
+      left.appendChild(document.createElement("br"));
+      left.appendChild(detail);
+      const right = document.createElement("span");
+      right.className = "mono";
+      right.textContent = money(item.amount);
+      li.append(left, right);
+      listEl.appendChild(li);
+    });
+
+    const totals = {};
+    rows.forEach(item => { totals[item.category] = (totals[item.category] || 0) + Number(item.amount); });
+    categoryTotals.innerHTML = "";
+    Object.entries(totals).sort().forEach(([category, total]) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${category}</td><td class="mono">${money(total)}</td>`;
+      categoryTotals.appendChild(tr);
+    });
+  };
+
+  const showStatus = (message, kind) => {
+    status.textContent = message;
+    status.classList.remove("alert", "alert-error", "alert-ok");
+    if (kind) status.classList.add("alert", kind);
+  };
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    const amount = Number(document.querySelector("#amount").value);
+    const category = document.querySelector("#category").value.trim();
+    const spent_on = document.querySelector("#spent_on").value;
+    const note = document.querySelector("#note").value.trim();
+    if (!Number.isFinite(amount) || amount <= 0) { showStatus("Amount must be a positive number.", "alert-error"); return; }
+    if (!category) { showStatus("Category is required.", "alert-error"); return; }
+    if (!spent_on) { showStatus("A date is required.", "alert-error"); return; }
+    expenses.push({ amount: Number(amount.toFixed(2)), category, spent_on, note });
+    persist(); refreshOptions(); render();
+    showStatus(`Saved ${category} £${amount.toFixed(2)} to local data.`, "alert-ok");
+    form.reset();
+    document.querySelector("#spent_on").value = today();
+    document.querySelector("#amount").value = "12.50";
+  });
+
+  document.querySelector("#seed-btn").addEventListener("click", () => {
+    expenses = [
+      { amount: 32.4, category: "food", spent_on: today(), note: "Demo groceries" },
+      { amount: 14.2, category: "travel", spent_on: today(), note: "Demo journey" },
+      { amount: 8.75, category: "food", spent_on: today(), note: "Demo coffee" },
+      { amount: 45.0, category: "bills", spent_on: today(), note: "Demo internet" },
+      { amount: 6.5, category: "fun", spent_on: today(), note: "Demo cinema" }
+    ];
+    persist(); refreshOptions(); render();
+    showStatus("Seeded five clearly-labelled demo entries in local data.", "alert-ok");
+  });
+
+  categoryFilter.addEventListener("change", render);
+  monthFilter.addEventListener("change", render);
+  document.querySelector("#clear-btn").addEventListener("click", () => {
+    expenses = []; persist(); refreshOptions(); render();
+    showStatus("Local demo data cleared.", "alert-ok");
+  });
+
+  refreshOptions(); render();
+})();
+</script>
+</body>
+</html>

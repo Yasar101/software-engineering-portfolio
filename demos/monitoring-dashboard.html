@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Animated offline simulation of the real-time monitoring dashboard portfolio project.">
+  <title>Monitoring Dashboard — animated demo</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main class="demo-shell">
+  <p class="eyebrow">Portfolio project · Real-Time Monitoring Dashboard</p>
+  <h1>Live look at bounded metric windows</h1>
+  <p class="muted">This page streams <strong>simulated local telemetry</strong> into the same
+    rolling-window logic found in the Python module. Every summary below — count, current,
+    average, minimum, maximum — is computed from the window in this browser.</p>
+
+  <section class="card">
+    <div class="row">
+      <div class="field"><label for="threshold">Latency threshold (ms)</label>
+        <input id="threshold" type="number" step="any" value="130"></div>
+      <div class="field"><label for="capacity">Window capacity</label>
+        <select id="capacity"><option>20</option><option selected>40</option><option>60</option></select></div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button type="button" id="feed-toggle">Pause feed</button>
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button type="button" class="secondary" id="sample-btn">Inject a spike</button>
+      </div>
+    </div>
+    <p class="status" id="feed-status" role="status">Streaming simulated latency samples every 800 ms.</p>
+  </section>
+
+  <section class="grid grid-2" style="margin-top:1rem">
+    <div class="card">
+      <h2>Sparkline (most recent window)</h2>
+      <canvas id="spark" width="520" height="180" style="width:100%;height:auto;display:block" aria-label="Latency sparkline"></canvas>
+    </div>
+    <div class="card">
+      <h2>Health</h2>
+      <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+        <span id="health-badge" class="badge badge-ok">healthy</span>
+        <span class="muted" style="font-size:.85rem">current vs. configured threshold</span>
+      </div>
+      <div class="metrics" style="margin-top:1rem">
+        <div class="metric"><div class="label">Current</div><div class="value" id="s-current">—</div></div>
+        <div class="metric"><div class="label">Average</div><div class="value" id="s-average">—</div></div>
+        <div class="metric"><div class="label">Min – Max</div><div class="value" style="font-size:1rem" id="s-range">—</div></div>
+        <div class="metric"><div class="label">Samples in window</div><div class="value" id="s-count">0</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>Design notes mirroring <code>MetricWindow</code></h2>
+    <ul class="list">
+      <li><span><strong>Bounded memory</strong> — old samples drop off once the capacity is reached.</span><span class="badge badge-ok">Bounded</span></li>
+      <li><span><strong>Per-metric windows</strong> — names are independent, like the default-dict in Python.</span><span class="badge badge-ok">Isolated</span></li>
+      <li><span><strong>Health check</strong> — <code>degraded</code> when the current value exceeds the maximum.</span><span class="badge badge-neutral">Mirrored</span></li>
+      <li><span><strong>Zero live telemetry</strong> — every value is generated locally; nothing leaves the page.</span><span class="badge badge-warn">Simulated</span></li>
+    </ul>
+    <pre class="log">python3 -m projects.monitoring_dashboard latency_ms 112 128 146 121 --threshold 130</pre>
+  </section>
+</main>
+<script>
+window.DEMO = {
+  name: "Real-Time Monitoring Dashboard",
+  title: "Monitoring Dashboard — simulated telemetry demo",
+  kind: "animated demo",
+  caption: "simulated telemetry · offline",
+  repo: "https://github.com/Yasar101/real-time-monitoring-dashboard"
+};
+</script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  const capacitySelect = document.querySelector("#capacity");
+  const thresholdInput = document.querySelector("#threshold");
+  const feedStatus = document.querySelector("#feed-status");
+  let values = [];
+  let capacity = Number(capacitySelect.value);
+  let running = true;
+  let timer = null;
+  let spike = 0;
+
+  const el = id => document.querySelector(id);
+  const canvas = document.querySelector("#spark");
+  const ctx = canvas.getContext("2d");
+
+  const average = list => list.length ? list.reduce((a, b) => a + b, 0) / list.length : 0;
+
+  const record = value => {
+    values.push(value);
+    if (values.length > capacity) values = values.slice(-capacity);
+    render();
+  };
+
+  const render = () => {
+    const current = values.length ? values[values.length - 1] : null;
+    const threshold = Number(thresholdInput.value);
+    const health = current == null ? "unknown" : (current > threshold ? "degraded" : "healthy");
+    const badge = el("#health-badge");
+    badge.textContent = health;
+    badge.className = "badge " + (health === "healthy" ? "badge-ok" : (health === "degraded" ? "badge-danger" : "badge-neutral"));
+    el("#s-current").textContent = current == null ? "—" : current.toFixed(1) + " ms";
+    el("#s-average").textContent = values.length ? average(values).toFixed(1) + " ms" : "—";
+    el("#s-range").textContent = values.length ? Math.min(...values).toFixed(1) + " – " + Math.max(...values).toFixed(1) : "—";
+    el("#s-count").textContent = values.length;
+    draw(values, threshold);
+  };
+
+  const draw = (list, threshold) => {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    if (!list.length) return;
+    const max = Math.max(threshold * 1.4, ...list);
+    const step = w / (list.length - 1 || 1);
+    ctx.strokeStyle = "#c2cfdd";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(0, h - 8);
+    ctx.lineTo(w, h - 8);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    list.forEach((value, index) => {
+      const x = index * step;
+      const y = h - 10 - (value / max) * (h - 30);
+      index === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = "#1d63c9";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    const ty = h - 10 - (threshold / max) * (h - 30);
+    ctx.strokeStyle = "#b42318";
+    ctx.setLineDash([3, 5]);
+    ctx.beginPath();
+    ctx.moveTo(0, ty);
+    ctx.lineTo(w, ty);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#5a6b7c";
+    ctx.font = "11px ui-monospace, monospace";
+    ctx.fillText("threshold", w - 62, Math.max(14, ty - 6));
+  };
+
+  const tick = () => {
+    let base = 112 + Math.sin(performance.now() / 9000) * 22;
+    if (spike > 0) { base += spike; spike -= spike * 0.35; }
+    base += (Math.random() - 0.5) * 14;
+    record(Math.max(20, base));
+  };
+
+  const start = () => { running = true; timer = setInterval(tick, 800); };
+  const stop = () => { running = false; clearInterval(timer); feedStatus.textContent = "Feed paused. Click Resume to keep streaming simulated samples."; };
+
+  el("#feed-toggle").addEventListener("click", event => {
+    if (running) { stop(); event.target.textContent = "Resume feed"; }
+    else { start(); event.target.textContent = "Pause feed"; feedStatus.textContent = "Streaming simulated latency samples every 800 ms."; }
+  });
+
+  el("#sample-btn").addEventListener("click", () => { spike = 140; feedStatus.textContent = "Spike injected: watch the health badge change when the threshold is exceeded."; });
+
+  capacitySelect.addEventListener("change", () => {
+    capacity = Number(capacitySelect.value);
+    values = values.slice(-capacity);
+    render();
+  });
+
+  for (let index = 0; index < 24; index += 1) tick();
+  start();
+})();
+</script>
+</body>
+</html>

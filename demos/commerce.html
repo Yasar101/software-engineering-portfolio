@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive architecture visualization of the microservices commerce workflow portfolio project.">
+  <title>Commerce Workflow — interactive demo</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main class="demo-shell">
+  <p class="eyebrow">Portfolio project · Microservices Commerce Platform</p>
+  <h1>Reserve, pay, and compensate</h1>
+  <p class="muted">An interactive demo of the commerce workflow: inventory reservation, payment,
+    and <strong>compensating release</strong> on failure. Fictional goods, fictional money, real
+    patterns.</p>
+
+  <section class="card">
+    <h2>Architecture (in-process model)</h2>
+    <div class="arch">
+      <div class="arch-node"><h4>Client / Orchestrator</h4><p>Sends an order for a SKU and a quantity.</p></div>
+      <div class="arch-flow">↓ placeOrder(sku, qty)</div>
+      <div class="arch-node"><h4>Inventory service</h4><p>Reserves stock (<code>reserve</code>) or rejects when unavailable.</p></div>
+      <div class="arch-flow">if reserved → payment(total)</div>
+      <div class="arch-node"><h4>Payment service</h4><p>Accepts, declines, or raises an <em>uncertain</em> exception.</p></div>
+      <div class="arch-flow">accepted → CONFIRMED · declined/exception → stock RELEASED</div>
+      <div class="arch-node"><h4>Outcome</h4><p>Order confirmed with a total, or rejected with a reason. Stock is never lost.</p></div>
+    </div>
+    <div class="alert warn"><strong>Honest boundary.</strong> This is a process-local reference
+      workflow. There is no durable saga, payment gateway, or deployed service behind it.</div>
+  </section>
+
+  <section class="grid grid-2" style="margin-top:1rem">
+    <div class="card">
+      <h2>Run a fictional order</h2>
+      <form id="order-form">
+        <div class="field"><label for="sku">SKU</label>
+          <select id="sku"><option value="demo-book" selected>demo-book (£12.50 each)</option></select>
+        </div>
+        <div class="field"><label for="quantity">Quantity</label>
+          <input id="quantity" type="number" min="1" max="2" step="1" value="1"></div>
+        <div class="field"><label for="payment">Payment outcome</label>
+          <select id="payment">
+            <option value="accept">Accepted</option>
+            <option value="decline">Declined</option>
+            <option value="exception">Uncertain (exception)</option>
+          </select>
+        </div>
+        <button type="submit">Place fictional order</button>
+      </form>
+      <p id="order-status" class="status" role="status"></p>
+    </div>
+
+    <div class="card">
+      <h2>Stock ledger (local)</h2>
+      <table>
+        <thead><tr><th>SKU</th><th>Available</th></tr></thead>
+        <tbody>
+          <tr><td>demo-book</td><td id="stock-demo-book">2</td></tr>
+        </tbody>
+      </table>
+      <h2>Order log</h2>
+      <ul id="order-log" class="list"></ul>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>Behavior this replicates from Python</h2>
+    <ul class="list">
+      <li><span>Unavailable item → <code>REJECTED / unavailable</code> without reserving.</span><span class="badge badge-ok">Checks</span></li>
+      <li><span>Declined payment → reserved stock is released, order <code>REJECTED / payment failed</code>.</span><span class="badge badge-ok">Compensates</span></li>
+      <li><span>Payment exception → stock released and exception propagated for reconciliation.</span><span class="badge badge-ok">Recovers</span></li>
+      <li><span>No real payments, brokers, or credentials anywhere in the demo.</span><span class="badge badge-warn">Offline</span></li>
+    </ul>
+    <pre class="log">python3 -m projects.microservices_commerce --decline-payment</pre>
+  </section>
+</main>
+<script>
+window.DEMO = {
+  name: "Microservices Commerce Platform",
+  title: "Commerce Workflow — compensation demo",
+  kind: "interactive demo",
+  caption: "fictional transaction · offline",
+  repo: "https://github.com/Yasar101/microservices-commerce-platform"
+};
+</script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  const stock = { "demo-book": 2 };
+  const prices = { "demo-book": 12.5 };
+  const log = document.querySelector("#order-log");
+  const status = document.querySelector("#order-status");
+
+  const renderStock = () => {
+    document.querySelector("#stock-demo-book").textContent = stock["demo-book"];
+  };
+
+  const appendLog = (text, kind) => {
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    span.textContent = text;
+    const badge = document.createElement("span");
+    badge.className = "badge " + ({ ok: "badge-ok", err: "badge-danger", neutral: "badge-neutral" }[kind] || "badge-neutral");
+    badge.textContent = { ok: "confirmed", err: "rejected", neutral: "uncertain" }[kind] || kind;
+    li.append(span, badge);
+    log.prepend(li);
+  };
+
+  const play = (outcome, quantity) => {
+    const orderId = "ord-" + Math.floor(Math.random() * 1e6);
+    if (!(outcome === "accept" || stock["demo-book"] >= quantity)) {
+      appendLog(`${orderId}: REJECTED / unavailable — not enough stock for ${quantity} × demo-book`, "err");
+      status.textContent = "Rejected: item unavailable or insufficient stock.";
+      status.classList.add("alert", "alert-error");
+      return;
+    }
+    stock["demo-book"] -= quantity;
+    const total = prices["demo-book"] * quantity;
+    renderStock();
+    if (outcome === "exception") {
+      stock["demo-book"] += quantity;
+      renderStock();
+      appendLog(`${orderId}: payment raised an UNCERTAIN exception — stock released (${quantity})`, "neutral");
+      status.textContent = "Payment exception: stock compensated and order outcome is uncertain (mirrors the Python raise path).";
+      status.classList.remove("alert", "alert-error");
+      return;
+    }
+    if (outcome === "decline") {
+      stock["demo-book"] += quantity;
+      renderStock();
+      appendLog(`${orderId}: REJECTED / payment failed — stock compensated (${quantity})`, "err");
+      status.textContent = "Payment declined. Reserved stock was released back into the ledger.";
+      status.classList.add("alert", "alert-error");
+      return;
+    }
+    appendLog(`${orderId}: CONFIRMED — total £${total.toFixed(2)}, stock now ${stock["demo-book"]}`, "ok");
+    status.textContent = "Order confirmed. Fictional totals, zero real money moved.";
+    status.classList.remove("alert", "alert-error");
+  };
+
+  document.querySelector("#order-form").addEventListener("submit", event => {
+    event.preventDefault();
+    play(document.querySelector("#payment").value, Number(document.querySelector("#quantity").value));
+  });
+
+  renderStock();
+  appendLog("Initial ledger: 2 × demo-book available. Try Accepted / Declined / Uncertain outcomes.", "neutral");
+})();
+</script>
+</body>
+</html>

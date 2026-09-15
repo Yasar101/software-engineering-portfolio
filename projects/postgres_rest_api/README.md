@@ -1,6 +1,6 @@
 # REST Service / PostgreSQL Reference
 
-**REFERENCE IMPLEMENTATION** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md)
+**REFERENCE IMPLEMENTATION** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md) · [Live demo](https://yasar101.github.io/software-engineering-portfolio/demos/rest-api.html)
 
 A transport-neutral item service returning status codes and dictionaries, with a repository protocol and illustrative SQL schema.
 

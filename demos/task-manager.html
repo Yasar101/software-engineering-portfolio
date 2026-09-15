@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive browser simulation of the SQLite task manager portfolio project.">
+  <title>Task Manager — interactive demo</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main class="demo-shell">
+  <p class="eyebrow">Portfolio project · Task Manager</p>
+  <h1>Plan, complete, and filter tasks</h1>
+  <p class="muted">A browser simulation of the SQLite-backed task manager. Tasks are stored in
+    <strong>browser localStorage</strong> and reproduce the create / complete / delete / filter
+    lifecycle of the original repository.</p>
+
+  <div class="grid grid-2">
+    <section class="card">
+      <h2>Add a task</h2>
+      <form id="task-form">
+        <div class="field"><label for="task-title">Title</label>
+          <input id="task-title" type="text" placeholder="e.g. Ship portfolio release" required>
+        </div>
+        <div class="row">
+          <button type="submit">Add task</button>
+          <button type="button" class="secondary" id="seed-btn">Seed demo tasks</button>
+        </div>
+      </form>
+      <p id="task-status" class="status" role="status"></p>
+      <div class="alert warn" style="margin-top:.6rem"><strong>Simulation note.</strong> The
+        Python project persists to a local SQLite database; this demo uses the browser's local
+        storage so it runs safely offline.</div>
+    </section>
+
+    <section class="card">
+      <div class="metrics">
+        <div class="metric"><div class="label">Open</div><div class="value" id="stat-open">0</div></div>
+        <div class="metric"><div class="label">Completed</div><div class="value" id="stat-done">0</div></div>
+        <div class="metric"><div class="label">Total</div><div class="value" id="stat-total">0</div></div>
+      </div>
+      <div class="row" style="margin-top:1rem">
+        <div class="field"><label for="status-filter">Filter</label>
+          <select id="status-filter">
+            <option value="open">Open</option>
+            <option value="completed">Completed</option>
+            <option value="all">All</option>
+          </select>
+        </div>
+        <button type="button" class="ghost" id="clear-btn">Clear all</button>
+      </div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>Tasks</h2>
+    <ul id="task-list" class="list"></ul>
+  </section>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>How this mirrors the Python project</h2>
+    <ul class="list">
+      <li><span><strong>CRUD lifecycle</strong> — create, complete, delete, and list, matching <code>TaskRepository</code>.</span><span class="badge badge-ok">Mirrored</span></li>
+      <li><span><strong>Validation</strong> — blank titles are rejected.</span><span class="badge badge-ok">Validated</span></li>
+      <li><span><strong>Offline persistence</strong> — data stays on this device.</span><span class="badge badge-warn">Offline</span></li>
+    </ul>
+    <pre class="log">python3 -m projects.task_manager --database tasks.sqlite3 add "Review accessibility states"
+python3 -m projects.task_manager --database tasks.sqlite3 list --status open</pre>
+  </section>
+</main>
+<script>
+window.DEMO = {
+  name: "Task Manager",
+  title: "Task Manager — lifecycle demo",
+  kind: "interactive demo",
+  caption: "browser simulation · offline",
+  repo: "https://github.com/Yasar101/task-manager-application"
+};
+</script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  const KEY = "ysse-task-demo-v1";
+  let tasks = [];
+  const load = () => {
+    try { tasks = JSON.parse(localStorage.getItem(KEY)) || []; } catch { tasks = []; }
+  };
+  const persist = () => localStorage.setItem(KEY, JSON.stringify(tasks));
+  load();
+
+  const form = document.querySelector("#task-form");
+  const input = document.querySelector("#task-title");
+  const listEl = document.querySelector("#task-list");
+  const status = document.querySelector("#task-status");
+  const filter = document.querySelector("#status-filter");
+
+  const render = () => {
+    const open = tasks.filter(task => !task.completed).length;
+    const done = tasks.length - open;
+    document.querySelector("#stat-open").textContent = open;
+    document.querySelector("#stat-done").textContent = done;
+    document.querySelector("#stat-total").textContent = tasks.length;
+
+    let rows;
+    if (filter.value === "open") rows = tasks.filter(task => !task.completed);
+    else if (filter.value === "completed") rows = tasks.filter(task => task.completed);
+    else rows = [...tasks];
+
+    listEl.innerHTML = "";
+    if (!rows.length) {
+      const li = document.createElement("li");
+      li.textContent = "No matching tasks.";
+      li.className = "muted";
+      listEl.appendChild(li);
+      return;
+    }
+    rows.forEach(task => {
+      const li = document.createElement("li");
+      const left = document.createElement("span");
+      const label = document.createElement("span");
+      label.textContent = `${task.completed ? "[x]" : "[ ]"}`;
+      label.className = "mono";
+      const strong = document.createElement("strong");
+      strong.textContent = ` ${task.title}`;
+      if (task.completed) strong.style.textDecoration = "line-through";
+      const detail = document.createElement("span");
+      detail.className = "detail";
+      detail.textContent = `#${task.id} · ${task.created_at.slice(0, 10)}`;
+      left.append(label, strong, document.createElement("br"), detail);
+
+      const actions = document.createElement("span");
+      actions.style.display = "flex";
+      actions.style.gap = ".4rem";
+      if (!task.completed) {
+        const doneBtn = document.createElement("button");
+        doneBtn.className = "secondary";
+        doneBtn.textContent = "Complete";
+        doneBtn.addEventListener("click", () => {
+          task.completed = true; persist(); render();
+        });
+        actions.appendChild(doneBtn);
+      }
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "danger";
+      deleteBtn.textContent = "Delete";
+      deleteBtn.addEventListener("click", () => {
+        tasks = tasks.filter(item => item.id !== task.id); persist(); render();
+      });
+      actions.appendChild(deleteBtn);
+      li.append(left, actions);
+      listEl.appendChild(li);
+    });
+  };
+
+  const showStatus = (message, kind) => {
+    status.textContent = message;
+    status.classList.remove("alert", "alert-error", "alert-ok");
+    if (kind) status.classList.add("alert", kind);
+  };
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    const title = input.value.trim();
+    if (!title) { showStatus("Title is required.", "alert-error"); return; }
+    const task = {
+      id: Math.max(0, ...tasks.map(item => item.id)) + 1,
+      title, completed: false,
+      created_at: new Date().toISOString()
+    };
+    tasks.push(task); persist(); render();
+    showStatus(`Created task #${task.id}: ${title}`, "alert-ok");
+    input.value = "";
+    input.focus();
+  });
+
+  document.querySelector("#seed-btn").addEventListener("click", () => {
+    tasks = [
+      { id: 1, title: "Review accessibility states", completed: false, created_at: new Date().toISOString() },
+      { id: 2, title: "Prepare local demonstration", completed: true, created_at: new Date().toISOString() },
+      { id: 3, title: "Document test boundaries", completed: false, created_at: new Date().toISOString() }
+    ];
+    persist(); render();
+    showStatus("Seeded three clearly-labelled demo tasks.", "alert-ok");
+  });
+
+  filter.addEventListener("change", render);
+  document.querySelector("#clear-btn").addEventListener("click", () => {
+    tasks = []; persist(); render();
+    showStatus("Local demo tasks cleared.", "alert-ok");
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

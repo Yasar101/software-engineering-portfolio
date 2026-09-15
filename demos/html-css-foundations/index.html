@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A beginner HTML and CSS learning project.">
+    <title>HTML &amp; CSS Foundations</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="site-header">
+      <div class="page-width">
+        <p class="site-name">My Learning Journey</p>
+        <nav aria-label="Primary navigation">
+          <ul class="nav-list">
+            <li><a href="#about">About</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#next">Next steps</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main-content">
+      <section class="hero page-width" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Portfolio project 01</p>
+          <h1 id="page-title">Learning the foundations of the web</h1>
+          <p>This simple page is where my software engineering portfolio begins: with clear HTML structure and a small, readable stylesheet.</p>
+          <a class="button" href="#about">Explore the project</a>
+        </div>
+        <img src="assets/learning-journey.svg" alt="A path leading through hills towards a rising sun" width="640" height="420">
+      </section>
+      <section class="section page-width" id="about" aria-labelledby="about-title">
+        <h2 id="about-title">About this page</h2>
+        <p>I built this project to practise the elements every website relies on. The content is divided into meaningful sections and remains usable on both large and small screens.</p>
+      </section>
+      <section class="section section-tinted" id="skills" aria-labelledby="skills-title">
+        <div class="page-width">
+          <h2 id="skills-title">Foundations practised</h2>
+          <ul class="card-list">
+            <li><strong>Structure</strong><span>Headings and semantic landmarks</span></li>
+            <li><strong>Content</strong><span>Links, images, paragraphs, and lists</span></li>
+            <li><strong>Presentation</strong><span>Colour, spacing, and responsive CSS</span></li>
+          </ul>
+        </div>
+      </section>
+      <section class="section page-width" id="next" aria-labelledby="next-title">
+        <h2 id="next-title">Next steps</h2>
+        <ol>
+          <li>Build layouts with Flexbox and Grid.</li>
+          <li>Design from a mobile-first starting point.</li>
+          <li>Learn how JavaScript adds interaction.</li>
+        </ol>
+        <p><a href="#page-title">Return to the beginning</a></p>
+      </section>
+    </main>
+    <footer><div class="page-width"><p>Built as the first stage of a software engineering portfolio.</p></div></footer>
+  </body>
+</html>

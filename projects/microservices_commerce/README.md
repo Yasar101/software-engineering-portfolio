@@ -1,6 +1,6 @@
 # Commerce Workflow Core
 
-**TESTED CORE** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md)
+**TESTED CORE** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md) · [Live demo](https://yasar101.github.io/software-engineering-portfolio/demos/commerce.html)
 
 An in-process order workflow with pricing, stock reservation and an injected payment callback.
 

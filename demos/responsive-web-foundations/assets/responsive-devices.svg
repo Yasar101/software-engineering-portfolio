@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" role="img" aria-labelledby="title description">
+  <title id="title">Responsive website screens</title><desc id="description">Desktop, tablet, and phone frames showing the same orange and green website layout.</desc>
+  <rect width="720" height="520" rx="28" fill="#e7eee8"/><rect x="66" y="70" width="500" height="324" rx="12" fill="#17201d"/>
+  <rect x="82" y="86" width="468" height="276" fill="#fff"/><rect x="104" y="112" width="180" height="18" fill="#cc4e2f"/>
+  <rect x="104" y="150" width="220" height="96" fill="#e7eee8"/><rect x="344" y="150" width="184" height="96" fill="#17201d"/>
+  <rect x="104" y="269" width="424" height="13" fill="#cbd4cc"/><rect x="104" y="296" width="340" height="13" fill="#cbd4cc"/>
+  <path d="M38 414h554l-32 36H70Z" fill="#17201d"/><rect x="470" y="206" width="174" height="250" rx="18" fill="#cc4e2f"/>
+  <rect x="484" y="224" width="146" height="204" rx="8" fill="#fff"/><rect x="502" y="246" width="86" height="14" fill="#cc4e2f"/>
+  <rect x="502" y="280" width="110" height="62" fill="#e7eee8"/><rect x="502" y="358" width="110" height="10" fill="#cbd4cc"/>
+  <rect x="502" y="380" width="78" height="10" fill="#cbd4cc"/><circle cx="557" cy="442" r="7" fill="#fff"/>
+</svg>

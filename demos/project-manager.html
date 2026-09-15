@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Architecture visualization and simulated demo of the PHP project management portfolio project.">
+  <title>PHP Project Management — architecture & demo</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main class="demo-shell">
+  <p class="eyebrow">Portfolio project · PHP Project Management System</p>
+  <h1>A Django-grade workflow, honestly staged</h1>
+  <p class="muted">The real application is procedural PHP + MySQL behind an Apache-ish runtime. This
+    page shows its <strong>architecture</strong> and lets you browse a <strong>simulated public
+    project list</strong> using the same search and date-filter ideas — without a database, session,
+    or login.</p>
+
+  <div class="grid grid-2" style="margin-bottom:1rem">
+    <div class="card">
+      <h2>Architecture</h2>
+      <div class="arch">
+        <div class="arch-node"><h4>Browser</h4><p>dependency-free responsive pages</p></div>
+        <div class="arch-flow">↓ PHP scripts (routing in <code>index.php</code>, <code>projects.php</code>, …)</div>
+        <div class="arch-node"><h4>Application layer</h4><p>validation, CSRF tokens, output escaping, ownership checks</p></div>
+        <div class="arch-flow">↓ PDO prepared statements</div>
+        <div class="arch-node"><h4>MySQL</h4><p>users + projects tables (<code>aproject.sql</code>)</p></div>
+      </div>
+      <div class="alert warn" style="margin-top:.8rem"><strong>Boundaries.</strong> No real login,
+        session, database, or deployment exists in this demo. It visualizes the design rather than
+        pretending to be production.</div>
+    </div>
+
+    <div class="card">
+      <h2>Simulated public project list</h2>
+      <p class="muted">Seeded local data — search by title and filter by date range like the
+        real <code>projects.php</code> screen.</p>
+      <form id="pm-search" class="row">
+        <div class="field" style="flex:2"><label for="pm-query">Search title</label>
+          <input id="pm-query" type="text" placeholder="e.g. analytics"></div>
+        <div class="field"><label for="pm-from">Starts after</label>
+          <input id="pm-from" type="date"></div>
+        <div class="field"><label for="pm-to">Ends before</label>
+          <input id="pm-to" type="date"></div>
+      </form>
+      <ul id="pm-list" class="list"></ul>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2>Security controls the project demonstrates</h2>
+    <ul class="list">
+      <li><span>Password hashing and verified logins (bcrypt-style hash, not plaintext).</span><span class="badge badge-ok">Auth</span></li>
+      <li><span>Ownership enforced at read and update boundaries.</span><span class="badge badge-ok">Authorization</span></li>
+      <li><span>CSRF tokens on state-changing forms; output is escaped.</span><span class="badge badge-ok">OWASP-aware</span></li>
+      <li><span>Configuration split out of tracked source via <code>.env.example</code>.</span><span class="badge badge-neutral">Config</span></li>
+    </ul>
+    <pre class="log">cd project-manager-php
+DB_HOST=127.0.0.1 DB_PORT=3306 DB_NAME=project_manager \
+DB_USER=project_manager_app DB_PASSWORD='your-local-password' php -S localhost:8000</pre>
+  </section>
+</main>
+<script>
+window.DEMO = {
+  name: "PHP Project Management System",
+  title: "PHP Project Management — architecture & simulated demo",
+  kind: "architecture + simulation",
+  caption: "visualization · no database",
+  repo: "https://github.com/Yasar101/php-project-management-system"
+};
+</script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  const projects = [
+    { title: "Internal analytics dashboard", owner: "Operations", start: "2025-03-10", end: "2025-09-01", phase: "Completed" },
+    { title: "Customer onboarding portal", owner: "Product", start: "2025-06-01", end: "2025-12-20", phase: "Active" },
+    { title: "Supplier API integration", owner: "Engineering", start: "2025-08-15", end: "2026-01-31", phase: "Active" },
+    { title: "Billing reconciliation tool", owner: "Finance", start: "2025-11-01", end: "2026-04-15", phase: "Planned" },
+    { title: "Marketing landing site", owner: "Marketing", start: "2025-01-05", end: "2025-05-30", phase: "Completed" }
+  ];
+  const list = document.querySelector("#pm-list");
+
+  const render = () => {
+    const query = document.querySelector("#pm-query").value.trim().toLowerCase();
+    const from = document.querySelector("#pm-from").value;
+    const to = document.querySelector("#pm-to").value;
+    const rows = projects.filter(project =>
+      (!query || project.title.toLowerCase().includes(query)) &&
+      (!from || project.start >= from) &&
+      (!to || project.start <= to)
+    );
+    list.innerHTML = "";
+    if (!rows.length) {
+      const li = document.createElement("li");
+      li.textContent = "No projects match the current search.";
+      li.className = "muted";
+      list.appendChild(li);
+      return;
+    }
+    rows.forEach(project => {
+      const li = document.createElement("li");
+      const left = document.createElement("span");
+      const strong = document.createElement("strong");
+      strong.textContent = project.title;
+      const detail = document.createElement("span");
+      detail.className = "detail";
+      detail.textContent = ` ${project.owner} · ${project.start} → ${project.end}`;
+      left.append(strong, detail);
+      const badge = document.createElement("span");
+      badge.className = "badge " + (project.phase === "Completed" ? "badge-ok" : project.phase === "Active" ? "badge-warn" : "badge-neutral");
+      badge.textContent = project.phase;
+      li.append(left, badge);
+      list.appendChild(li);
+    });
+  };
+
+  ["pm-query", "pm-from", "pm-to"].forEach(id =>
+    document.querySelector("#" + id).addEventListener("input", render)
+  );
+  render();
+})();
+</script>
+</body>
+</html>

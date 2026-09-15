@@ -1,0 +1,35 @@
+:root { color-scheme: light; --ink: #183153; --muted: #536579; --accent: #2563eb; --surface: #eef5ff; --white: #fff; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; color: var(--ink); background: var(--white); font-family: Arial, Helvetica, sans-serif; line-height: 1.6; }
+a { color: var(--accent); }
+a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 3px; }
+img { display: block; max-width: 100%; height: auto; }
+.page-width { width: min(90%, 68rem); margin-inline: auto; }
+.skip-link { position: absolute; top: -4rem; left: 1rem; z-index: 2; padding: .5rem .75rem; color: var(--white); background: var(--ink); }
+.skip-link:focus { top: 1rem; }
+.site-header { border-bottom: 1px solid #d9e2ec; }
+.site-header .page-width { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.site-name, .nav-list a { font-weight: 700; }
+.nav-list { display: flex; gap: 1rem; margin: 0; padding: 0; list-style: none; }
+.nav-list a { color: var(--ink); text-decoration: none; }
+.nav-list a:hover { text-decoration: underline; }
+.hero { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 3rem; min-height: 32rem; padding-block: 4rem; }
+h1, h2, p { max-width: 65ch; }
+h1 { margin: 0 0 1rem; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.1; }
+h2 { font-size: 1.75rem; }
+.eyebrow { margin-bottom: .5rem; color: var(--accent); font-size: .85rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.button { display: inline-block; margin-top: .75rem; padding: .7rem 1rem; border-radius: .25rem; color: var(--white); background: var(--accent); font-weight: 700; text-decoration: none; }
+.section { padding-block: 3rem; }
+.section-tinted { background: var(--surface); }
+.card-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 0; list-style: none; }
+.card-list li { padding: 1.25rem; border: 1px solid #cfdded; border-radius: .5rem; background: var(--white); }
+.card-list span { display: block; margin-top: .35rem; color: var(--muted); }
+footer { padding-block: 1.5rem; color: var(--white); background: var(--ink); }
+@media (max-width: 42rem) {
+  .site-header .page-width, .hero { display: block; }
+  .nav-list { padding-bottom: 1rem; }
+  .hero { min-height: auto; padding-block: 2.5rem; }
+  .hero img { margin-top: 2rem; }
+  .card-list { grid-template-columns: 1fr; }
+}

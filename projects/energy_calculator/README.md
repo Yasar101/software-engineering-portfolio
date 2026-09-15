@@ -1,6 +1,6 @@
 # Energy Calculator
 
-**TESTED** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md)
+**TESTED** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md) · [Live demo](https://yasar101.github.io/software-engineering-portfolio/demos/energy-calculator.html)
 
 A pure calculation of electricity use, cost and estimated carbon emissions.
 

@@ -23,9 +23,13 @@ Ten small implementations now have concise, executable documentation and explici
 
 Eleven new regression tests reproduced the defects before the changes. The original 16 tests remain; two documentation tests bring the suite to 29. One initial regression invocation was made outside the repository root and failed discovery; the recorded behavior failures and final passing results used the documented repository-root command.
 
+## Presentation and demo audit (2026-09-15)
+
+All 15 public repositories are now featured with direct source links and offline demos under `demos/`. The demos are validated to make no external calls other than `github.com` source links, to exist for every featured project, and to pass `node --check` (`tests/test_demos.py`). Web/PHP projects render their original static pages or a clearly labelled simulation; no PHP/backend runtime is deployed and no private repository name appears in tracked files.
+
 ## Release evidence
 
-Compilation, all 29 tests, all ten offline examples, relative links and `git diff --check` pass on Python 3.13.13. Public Markdown links returned HTTP 200. CI uses the same compile/test commands on Python 3.11–3.13; its remote result is available through Actions and is not inferred from local tests.
+Compilation, all 36 tests, all ten offline examples, relative links and `git diff --check` pass on Python 3.13.13. Public Markdown links returned HTTP 200. CI uses the same compile/test commands on Python 3.11–3.13; its remote result is available through Actions and is not inferred from local tests.
 
 Before publication, proposed files were reviewed for environment files, credentials, key/token patterns, personal data, databases, runtime artifacts, symlinks and oversized files. Four pattern matches were regex source or clearly synthetic negative-test values; none was an unresolved credential. No non-example .env or private-key filenames were found in repository history. A bounded scan is not an exhaustive guarantee about all possible secrets.
 
@@ -42,4 +46,4 @@ The original histories and repository visibility are preserved. Only the two aut
 
 ## Remaining work
 
-Future adapters and product-level interfaces are documented in PORTFOLIO_PLAN.md. Known reference limitations include scheduler fencing and durability, commerce idempotency and payment reconciliation, metrics cardinality, expense-file recovery, and heuristic AI screening. These are visible scope limits, not hidden passing-test claims. Earlier web repositories have not been source-audited here and are not featured from their names alone.
+Future adapters and product-level interfaces are documented in PORTFOLIO_PLAN.md. Known reference limitations include scheduler fencing and durability, commerce idempotency and payment reconciliation, metrics cardinality, expense-file recovery, and heuristic AI screening. These are visible scope limits, not hidden passing-test claims. The featured web/PHP repositories show their original static pages or a clearly labelled architecture simulation; their original servers are not deployed and no other earlier repository is featured from its name alone.

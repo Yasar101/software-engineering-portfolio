@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Offline browser simulation of the weather dashboard portfolio project.">
+  <title>Weather Dashboard — simulated demo</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main class="demo-shell">
+  <p class="eyebrow">Portfolio project · Weather Dashboard</p>
+  <h1>Current conditions, current cities</h1>
+  <p class="muted">This demo generates <strong>representative local fixture data</strong> and runs it
+    through the same parsing and presentation logic as the Python project — without any network
+    call. In the real project, the identical code reads Open-Meteo at request time.</p>
+
+  <section class="card">
+    <form id="weather-form" class="row">
+      <div class="field"><label for="city">City preset</label>
+        <select id="city">
+          <option value="London">London</option>
+          <option value="Lagos">Lagos</option>
+          <option value="New York">New York</option>
+          <option value="Tokyo">Tokyo</option>
+          <option value="Sydney">Sydney</option>
+        </select>
+      </div>
+      <div class="field"><label for="lat">Latitude</label><input id="lat" type="number" step="any" value="51.5072" aria-label="Latitude"></div>
+      <div class="field"><label for="lon">Longitude</label><input id="lon" type="number" step="any" value="-0.1276" aria-label="Longitude"></div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button type="submit">Refresh snapshot</button>
+      </div>
+    </form>
+    <p id="weather-status" class="status" role="status"></p>
+  </section>
+
+  <section class="card" style="margin-top:1rem">
+    <div class="grid grid-2" style="align-items:center">
+      <div>
+        <p class="eyebrow" id="snapshot-location">SIMULATED · SEEDED FIXTURE</p>
+        <h2 id="snapshot-title">London</h2>
+        <div style="font-size:4rem;font-weight:800;letter-spacing:-.04em" id="snapshot-temp">17.8°C</div>
+        <p class="muted" id="snapshot-summary">17.8°C, wind 11.3 km/h</p>
+        <p class="muted mono" id="snapshot-time" style="font-size:.8rem"></p>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="label">Temperature</div><div class="value" id="m-temp">17.8°C</div></div>
+        <div class="metric"><div class="label">Wind speed</div><div class="value" id="m-wind">11.3 km/h</div></div>
+        <div class="metric"><div class="label">Observed at</div><div class="value" id="m-time">—</div><div class="help">provider timestamp</div></div>
+        <div class="metric"><div class="label">Data source</div><div class="value" id="m-source">fixture</div><div class="help">no network call</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>How the demo maps to the project</h2>
+    <table>
+      <thead><tr><th>Layer</th><th>Python project</th><th>This demo</th></tr></thead>
+      <tbody>
+        <tr><td>Data</td><td>Open-Meteo HTTPS API</td><td>Seeded local fixture (never network)</td></tr>
+        <tr><td>Parsing</td><td><code>parse_open_meteo</code> validates the payload</td><td>Identical validation on the fixture</td></tr>
+        <tr><td>Presentation</td><td>Single-snapshot CLI summary</td><td>Response-style dashboard cards</td></tr>
+        <tr><td>Error path</td><td>Invalid/missing fields raise <code>ValueError</code></td><td>Bad fixture shape shows a clear error</td></tr>
+      </tbody>
+    </table>
+    <pre class="log">python3 -m projects.weather_dashboard 51.5072 -0.1276</pre>
+  </section>
+</main>
+<script>
+window.DEMO = {
+  name: "Weather Dashboard",
+  title: "Weather Dashboard — offline simulated demo",
+  kind: "simulated demo",
+  caption: "offline fixture · no network",
+  repo: "https://github.com/Yasar101/weather-dashboard"
+};
+</script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  const presets = {
+    London: { lat: 51.5072, lon: -0.1276, temp: 17.8, wind: 11.3 },
+    Lagos: { lat: 6.5244, lon: 3.3792, temp: 29.4, wind: 14.6 },
+    "New York": { lat: 40.7128, lon: -74.006, temp: 21.2, wind: 9.8 },
+    Tokyo: { lat: 35.6762, lon: 139.6503, temp: 26.1, wind: 12.4 },
+    Sydney: { lat: -33.8688, lon: 151.2093, temp: 15.3, wind: 18.7 }
+  };
+
+  const snapshot = {};
+
+  const parseOpenMeteo = (payload) => {
+    const current = payload && payload.current;
+    if (!current || typeof current !== "object") throw new Error("invalid weather response");
+    const temp = Number(current.temperature_2m);
+    const wind = Number(current.wind_speed_10m);
+    const time = String(current.time);
+    if (!Number.isFinite(temp) || !Number.isFinite(wind) || !time) throw new Error("invalid weather response");
+    return {
+      temperatureC: temp,
+      windSpeedKph: wind,
+      observedAt: time,
+      summary: `${temp.toFixed(1)}°C, wind ${wind.toFixed(1)} km/h`
+    };
+  };
+
+  const city = document.querySelector("#city");
+  const lat = document.querySelector("#lat");
+  const lon = document.querySelector("#lon");
+  const status = document.querySelector("#weather-status");
+
+  const apply = (payload) => {
+    const parsed = parseOpenMeteo(payload);
+    document.querySelector("#snapshot-temp").textContent = `${parsed.temperatureC.toFixed(1)}°C`;
+    document.querySelector("#snapshot-summary").textContent = parsed.summary;
+    document.querySelector("#snapshot-time").textContent = `Observed at ${parsed.observedAt} (provider timestamp)`;
+    document.querySelector("#m-temp").textContent = `${parsed.temperatureC.toFixed(1)}°C`;
+    document.querySelector("#m-wind").textContent = `${parsed.windSpeedKph.toFixed(1)} km/h`;
+    document.querySelector("#m-time").textContent = parsed.observedAt;
+    document.querySelector("#m-source").textContent = "fixture";
+    document.querySelector("#snapshot-title").textContent = city.value;
+    document.querySelector("#snapshot-location").textContent = "SIMULATED · SEEDED FIXTURE";
+    status.textContent = `Parsed a local fixture for ${city.value}; no network request was made.`;
+    status.classList.remove("alert", "alert-error");
+  };
+
+  document.querySelector("#weather-form").addEventListener("submit", event => {
+    event.preventDefault();
+    const preset = presets[city.value];
+    const usePreset = event.submitter && event.submitter.id !== "simulated-refresh";
+    const conf = preset && usePreset ? preset : { lat: Number(lat.value), lon: Number(lon.value) };
+    if (!Number.isFinite(conf.lat) || conf.lat < -90 || conf.lat > 90 ||
+        !Number.isFinite(conf.lon) || conf.lon < -180 || conf.lon > 180) {
+      status.textContent = "Invalid coordinates: use latitude within ±90 and longitude within ±180.";
+      status.classList.add("alert", "alert-error");
+      return;
+    }
+    const time = new Date();
+    const stamp = time.toISOString().slice(0, 16);
+    const payload = {
+      current: {
+        temperature_2m: conf.temp != null ? conf.temp : 10 + ((conf.lat * 7) % 18),
+        wind_speed_10m: conf.wind != null ? conf.wind : 5 + ((conf.lon * 13 + 7) % 16),
+        time: stamp
+      }
+    };
+    if (preset && !usePreset && !conf.temp) payload.current.temperature_2m += 0;
+    try { apply(payload); }
+    catch (error) {
+      status.textContent = `Rejected: ${error.message}`;
+      status.classList.add("alert", "alert-error");
+    }
+  });
+
+  city.addEventListener("change", () => {
+    const preset = presets[city.value];
+    if (preset) { lat.value = preset.lat; lon.value = preset.lon; }
+  });
+
+  const firstPreset = presets[city.value];
+  lat.value = firstPreset.lat;
+  lon.value = firstPreset.lon;
+  const stamp = new Date().toISOString().slice(0, 16);
+  apply({ current: { temperature_2m: firstPreset.temp, wind_speed_10m: firstPreset.wind, time: stamp } });
+})();
+</script>
+</body>
+</html>

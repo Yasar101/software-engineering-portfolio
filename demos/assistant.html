@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive offline simulation of the AI developer assistant portfolio project.">
+  <title>AI Developer Assistant — simulated demo</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main class="demo-shell">
+  <p class="eyebrow">Portfolio project · AI Developer Assistant</p>
+  <h1>Retrieval, screening, and a provider boundary</h1>
+  <p class="muted">Ask the simulated assistant a question about this small repository. It ranks
+    documents by keyword overlap, screens for credentials, and builds a bounded prompt for a
+    <strong>local, deterministic provider</strong> — no API key is ever used.</p>
+
+  <section class="card">
+    <h2>Ask a question</h2>
+    <form id="ask-form">
+      <div class="field"><label for="question">Your question</label>
+        <input id="question" type="text" value="Where is token refresh handled?" autocomplete="off"></div>
+      <button type="submit">Ask the simulated assistant</button>
+    </form>
+    <p class="status" id="ask-status" role="status"></p>
+  </section>
+
+  <section class="grid grid-2" style="margin-top:1rem">
+    <div class="card">
+      <h2>Retrieved context</h2>
+      <ul id="retrieved-list" class="list"></ul>
+      <h2 style="margin-top:1rem">Prompt sent to the provider</h2>
+      <pre class="log" id="prompt-log" style="max-height:230px">// prompt appears when you ask a question</pre>
+    </div>
+    <div class="card">
+      <h2>Answer (deterministic provider)</h2>
+      <p id="answer-text" class="muted">—</p>
+      <h2 style="margin-top:1.2rem">Architecture</h2>
+      <div class="arch">
+        <div class="arch-node"><h4>DeveloperAssistant</h4><p>token retrieval · context screening · prompt building</p></div>
+        <div class="arch-flow">↓ typedef Provider(str) → str</div>
+        <div class="arch-node"><h4>Provider abstraction</h4><p>demo = local deterministic · prod = any model/API</p></div>
+      </div>
+      <div class="alert warn"><strong>No model-quality claim.</strong> The demo provider returns a
+        templated answer to show the boundary; it does not evaluate model output.</div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>Screening rules replicated from Python</h2>
+    <ul class="list">
+      <li><span>Questions and context paths are checked for API keys / tokens / passwords.</span><span class="badge badge-ok">Screened</span></li>
+      <li><span>Secret-bearing context is rejected before it reaches a provider.</span><span class="badge badge-ok">Blocked</span></li>
+      <li><span>Retrieval is keyword overlap against the document corpus.</span><span class="badge badge-neutral">Deterministic</span></li>
+    </ul>
+    <pre class="log">python3 -m projects.ai_developer_assistant "Where is token refresh handled?"</pre>
+  </section>
+</main>
+<script>
+window.DEMO = {
+  name: "AI Developer Assistant",
+  title: "AI Developer Assistant — retrieval & screening demo",
+  kind: "simulated demo",
+  caption: "local deterministic provider",
+  repo: "https://github.com/Yasar101/ai-developer-assistant"
+};
+</script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  const documents = [
+    { path: "auth.py", content: "OAuth token refresh handler and expiry checks." },
+    { path: "money.py", content: "Decimal calculations avoid binary floating point rounding." },
+    { path: "jobs.py", content: "Workers claim jobs with expiring leases." }
+  ];
+  const SECRET = /(api[_-]?key|token|password)["']?\s*[=:]\s*\S+/i;
+  const TOKEN = /[a-z_][a-z0-9_]+/gi;
+
+  const termsOf = text => new Set(text.toLowerCase().match(TOKEN) || []);
+  const status = document.querySelector("#ask-status");
+  const retrievedList = document.querySelector("#retrieved-list");
+  const promptLog = document.querySelector("#prompt-log");
+  const answerText = document.querySelector("#answer-text");
+
+  const answer = (question) => {
+    if (question.length > 4000) throw new Error("question must be at most 4000 characters");
+    if (SECRET.test(question)) throw new Error("potential secret detected; redact credentials before continuing");
+
+    const questionTerms = termsOf(question);
+    const ranked = [...documents].map(doc => ({
+      doc, score: [...termsOf(doc.content)].filter(term => questionTerms.has(term)).length
+    })).filter(entry => entry.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map(entry => entry.doc);
+
+    if (ranked.some(doc => SECRET.test(doc.path) || SECRET.test(doc.content))) {
+      throw new Error("potential secret detected in repository context");
+    }
+    if (ranked.some(doc => doc.path.length > 256)) {
+      throw new Error("context path must be at most 256 characters");
+    }
+    const excerpts = ranked.map(doc => `FILE: ${doc.path}\n${doc.content.slice(0, 2000)}`).join("\n\n");
+    const prompt = `Answer using only the supplied repository context.\n\n${excerpts}\n\nQUESTION: ${question}`;
+    const answerTextLocal = prompt.includes("token refresh")
+      ? "auth.py handles OAuth token refresh and expiry. Per the supplied context, refresh logic and expiry checks live in that module; nothing outside the retrieved files is assumed."
+      : "Grounded in the retrieved files only: " + (ranked.map(doc => doc.path).join(", ") || "no matching documents");
+    return { ranked, prompt, answerTextLocal };
+  };
+
+  const render = (ctx, prompt, providerAnswer) => {
+    retrievedList.innerHTML = "";
+    if (!ctx.length) {
+      const li = document.createElement("li");
+      li.textContent = "No matching documents. This question does not overlap the demo corpus.";
+      li.className = "muted";
+      retrievedList.appendChild(li);
+    }
+    ctx.forEach(doc => {
+      const li = document.createElement("li");
+      const left = document.createElement("span");
+      const strong = document.createElement("strong");
+      strong.textContent = doc.path;
+      const detail = document.createElement("span");
+      detail.className = "detail";
+      detail.textContent = ` · ${doc.content}`;
+      left.append(strong, detail);
+      li.appendChild(left);
+      retrievedList.appendChild(li);
+    });
+    promptLog.textContent = prompt || "// prompt appears when you ask a question";
+    answerText.textContent = providerAnswer;
+  };
+
+  document.querySelector("#ask-form").addEventListener("submit", event => {
+    event.preventDefault();
+    const question = document.querySelector("#question").value;
+    try {
+      const result = answer(question);
+      render(result.ranked, result.prompt, result.answerTextLocal);
+      status.textContent = "Delivered by a local deterministic provider; no external model call made.";
+      status.classList.remove("alert", "alert-error");
+    } catch (error) {
+      render([], "", "—");
+      status.textContent = `Rejected before provider: ${error.message}`;
+      status.classList.add("alert", "alert-error");
+    }
+  });
+
+  document.querySelector("#ask-form").dispatchEvent(new Event("submit"));
+})();
+</script>
+</body>
+</html>

@@ -2,6 +2,14 @@
 
 Reviewed 2026-09-08. This is an employer-facing reference portfolio, not a production deployment claim.
 
+## Latest validation (2026-09-15)
+
+- Python 3.11.16: `python3 -m compileall -q projects` passed.
+- `python3 -m unittest discover -s tests -v`: **36 tests passed**, including eleven failure-path regressions, two documentation checks and six demo/presentation checks.
+- Demo validation (`tests/test_demos.py`): every featured project has a direct public `repo` URL and an existing `demo` path; demos reference only `github.com` source links or localhost; inline demo JavaScript and the site scripts pass `node --check`; no private repository name appears in tracked text files.
+- All ten project README Python examples execute offline. Relative Markdown targets and anchors pass validation.
+- GitHub Pages workflow copies `demos/` into the published site; the deploy target is <https://yasar101.github.io/software-engineering-portfolio/>.
+
 ## Earlier release environment boundaries
 Last updated: 2026-09-05
 
@@ -33,8 +41,13 @@ Last updated: 2026-09-05
 | Commerce Core | TESTED CORE | In-process compensation; no durable payment transaction |
 | AI Assistant Core | TESTED CORE | Fake provider tests; no model-quality or comprehensive safety evidence |
 | Scheduler Core | TESTED CORE | Single-process memory; no persistence or fencing token |
+| HTML & CSS Foundations | TESTED PAGE | Original static page copied for review; no backend |
+| Responsive Web Foundations | TESTED PAGE | Original static page copied for review; no backend |
+| PHP Calculator Fundamentals | TESTED LOGIC | Browser mirror of the PHP logic; PHP runtime not deployed |
+| Fitness Tracking Web App | TESTED PAGE | Static front-end only; original backend not deployed |
+| PHP Project Management System | ARCHITECTURE REVIEW | Architecture walk-through plus simulated public view; not a deployed system |
 
-See each project README for its working example and limitations. No unreviewed supporting repository is promoted as validated work.
+Each of the 15 projects links to its public source and an offline demo. See each project README for its working example and limitations. No unreviewed supporting repository is promoted as validated work.
 
 ### 2026-09-05 release snapshot
 

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive browser simulation of the energy calculator portfolio project.">
+  <title>Energy Calculator — interactive demo</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main class="demo-shell">
+  <p class="eyebrow">Portfolio project · Energy Calculator Pro</p>
+  <h1>Estimate electricity cost and carbon</h1>
+  <p class="muted">A browser simulation of the energy calculator. It re-implements the exact
+    <code>Decimal</code> formulas from the Python module with the same rounding and validation, using
+    your input values only.</p>
+
+  <section class="grid grid-2">
+    <div class="card">
+      <h2>Appliance inputs</h2>
+      <form id="energy-form">
+        <div class="field"><label for="watts">Power (watts)</label><input id="watts" type="number" min="0" step="any" value="850" required></div>
+        <div class="field"><label for="hours">Hours per day</label><input id="hours" type="number" min="0" max="24" step="0.1" value="3.5" required></div>
+        <div class="field"><label for="days">Billing-period days</label><input id="days" type="number" min="1" step="1" value="30" required></div>
+        <div class="field"><label for="tariff">Tariff (£ / kWh)</label><input id="tariff" type="number" min="0" step="0.01" value="0.28" required></div>
+        <div class="field"><label for="carbon">Carbon factor (kg CO₂e / kWh)</label><input id="carbon" type="number" min="0" step="0.001" value="0.207" required></div>
+        <button type="submit">Estimate</button>
+      </form>
+      <p id="energy-status" class="status" role="status"></p>
+      <div class="alert warn"><strong>Simulation note.</strong> This is a supplied-input estimate,
+        not a live tariff or supplier integration.</div>
+    </div>
+
+    <div>
+      <div class="metrics">
+        <div class="metric"><div class="label">Consumption</div><div class="value" id="out-kwh">—</div><div class="help">kWh per period</div></div>
+        <div class="metric"><div class="label">Estimated cost</div><div class="value" id="out-cost">—</div><div class="help">at your tariff</div></div>
+        <div class="metric"><div class="label">Carbon</div><div class="value" id="out-carbon">—</div><div class="help">kg CO₂e</div></div>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <h2>Formula used</h2>
+        <pre class="log">kwh  = watts × hours × days ÷ 1000
+cost = kwh × tariff            (2 dp)
+carbon = kwh × carbon_factor   (3 dp)</pre>
+        <p class="muted" style="font-size:.82rem">All values are rounded half-up like Python's
+          <code>Decimal</code>, avoiding binary floating-point surprises.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>Validation rules carried over from Python</h2>
+    <ul class="list">
+      <li><span>Negative inputs are rejected.</span><span class="badge badge-ok">Checked</span></li>
+      <li><span>Hours per day cannot exceed 24.</span><span class="badge badge-ok">Checked</span></li>
+      <li><span>Estimates are transparent and auditable.</span><span class="badge badge-neutral">Design</span></li>
+    </ul>
+    <pre class="log">python3 -m projects.energy_calculator --watts 850 --hours 3.5 --days 30 --tariff 0.28</pre>
+  </section>
+</main>
+<script>
+window.DEMO = {
+  name: "Energy Calculator Pro",
+  title: "Energy Calculator — transparent estimation demo",
+  kind: "interactive demo",
+  caption: "browser simulation",
+  repo: "https://github.com/Yasar101/energy-calculator-pro"
+};
+</script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  const form = document.querySelector("#energy-form");
+  const status = document.querySelector("#energy-status");
+  const roundHalfUp = (value, dp) => {
+    const factor = 10 ** dp;
+    return Math.round((value + Number.EPSILON) * factor) / factor;
+  };
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    const maybe = (id) => document.querySelector(id).value;
+    const watts = Number(maybe("#watts"));
+    const hours = Number(maybe("#hours"));
+    const days = Number(maybe("#days"));
+    const tariff = Number(maybe("#tariff"));
+    const carbon = Number(maybe("#carbon"));
+    const inputs = [watts, hours, days, tariff, carbon];
+
+    status.classList.remove("alert", "alert-error");
+    if (inputs.some(value => !Number.isFinite(value) || value < 0)) {
+      status.textContent = "Inputs cannot be negative.";
+      status.classList.add("alert", "alert-error");
+      return;
+    }
+    if (hours > 24) {
+      status.textContent = "Hours per day cannot exceed 24.";
+      status.classList.add("alert", "alert-error");
+      return;
+    }
+
+    const kwh = roundHalfUp((watts * hours * days) / 1000, 3);
+    const cost = roundHalfUp(kwh * tariff, 2);
+    const carbonKg = roundHalfUp(kwh * carbon, 3);
+    document.querySelector("#out-kwh").textContent = kwh.toFixed(3);
+    document.querySelector("#out-cost").textContent = "£" + cost.toFixed(2);
+    document.querySelector("#out-carbon").textContent = carbonKg.toFixed(3);
+    status.textContent = "Estimate computed from the supplied values only.";
+    status.classList.add("alert", "alert-ok");
+  });
+
+  form.dispatchEvent(new Event("submit"));
+})();
+</script>
+</body>
+</html>

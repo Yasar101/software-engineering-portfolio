@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive offline simulation of the distributed AI platform scheduler portfolio project.">
+  <title>Distributed AI Platform — scheduler demo</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main class="demo-shell">
+  <p class="eyebrow">Portfolio project · Distributed AI Systems Platform</p>
+  <h1>Lease-driven job scheduling, simulated</h1>
+  <p class="muted">A browser model of the in-process <code>JobScheduler</code>: submit jobs, claim
+    them on an expiring lease, and finish them successfully or with a retryable failure. Leases
+    expire, workers own running jobs, and attempts are bounded.</p>
+
+  <section class="grid grid-2">
+    <div class="card">
+      <h2>Submit a job</h2>
+      <form id="submit-form" class="row">
+        <div class="field" style="flex:2"><label for="job-model">Payload model</label>
+          <input id="job-model" type="text" value="demo-small"></div>
+        <div class="field"><label>&nbsp;</label>
+          <button type="submit">Submit</button></div>
+      </form>
+
+      <h2 style="margin-top:1.2rem">Claim by worker</h2>
+      <form id="claim-form" class="row">
+        <div class="field"><label for="worker">Worker</label>
+          <select id="worker"><option value="worker-a">worker-a</option><option value="worker-b">worker-b</option></select></div>
+        <div class="field"><label for="lease">Lease (s)</label>
+          <input id="lease" type="number" min="1" step="1" value="30"></div>
+        <div class="field"><label>&nbsp;</label>
+          <button type="submit" class="secondary">Claim next job</button></div>
+      </form>
+
+      <h2 style="margin-top:1.2rem">Finish a running job</h2>
+      <form id="finish-form" class="row">
+        <div class="field"><label for="finish-id">Job id</label>
+          <input id="finish-id" type="text" placeholder="running job id"></div>
+        <div class="field"><label for="outcome">Outcome</label>
+          <select id="outcome"><option value="success">Success</option><option value="fail">Failure (retry)</option></select></div>
+        <div class="field"><label>&nbsp;</label>
+          <button type="submit" class="secondary">Finish</button></div>
+      </form>
+      <p id="scheduler-status" class="status" role="status"></p>
+    </div>
+
+    <div class="card">
+      <h2>State machine</h2>
+      <div class="arch">
+        <div class="arch-node"><h4>Queued</h4><p>waiting for a lease claim</p></div>
+        <div class="arch-flow">← finish(retryable) · claim →</div>
+        <div class="arch-node"><h4>Running</h4><p>owned by one worker until the lease expires</p></div>
+        <div class="arch-flow">finish(success) →</div>
+        <div class="arch-node"><h4>Succeeded</h4><p>terminal</p></div>
+        <div class="arch-flow">finish(final failure) / expired final attempt →</div>
+        <div class="arch-node"><h4>Failed</h4><p>terminal after max attempts</p></div>
+      </div>
+      <div class="metrics" style="margin-top:1rem">
+        <div class="metric"><div class="label">Queued</div><div class="value" id="q-queued">0</div></div>
+        <div class="metric"><div class="label">Running</div><div class="value" id="q-running">0</div></div>
+        <div class="metric"><div class="label">Succeeded</div><div class="value" id="q-succeeded">0</div></div>
+        <div class="metric"><div class="label">Failed</div><div class="value" id="q-failed">0</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>Job ledger</h2>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>ID</th><th>Payload</th><th>State</th><th>Attempts / max</th><th>Worker</th><th>Lease until</th></tr></thead>
+      <tbody id="job-table"></tbody>
+    </table></div>
+  </section>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>What the demo replicates from Python</h2>
+    <ul class="list">
+      <li><span><strong>Ownership</strong> — only the leasing worker may finish a running job.</span><span class="badge badge-ok">Mirrored</span></li>
+      <li><span><strong>Bounded retries</strong> — expired final attempts are terminal, never stranded.</span><span class="badge badge-ok">Mirrored</span></li>
+      <li><span><strong>Deep-copied payloads</strong> — returned jobs are defensive copies.</span><span class="badge badge-neutral">Design</span></li>
+      <li><span><strong>No distributed runtime</strong> — this is a single-process reference model.</span><span class="badge badge-warn">Honest</span></li>
+    </ul>
+    <pre class="log">python3 -m projects.distributed_ai_platform --fail</pre>
+  </section>
+</main>
+<script>
+window.DEMO = {
+  name: "Distributed AI Systems Platform",
+  title: "Distributed AI Platform — scheduler simulation",
+  kind: "simulated demo",
+  caption: "in-process scheduler model",
+  repo: "https://github.com/Yasar101/distributed-ai-systems-platform"
+};
+</script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  const MAX_ATTEMPTS = 2;
+  let jobs = [];
+  let tick = 0;
+  const status = document.querySelector("#scheduler-status");
+
+  const now = () => tick;
+
+  const nextState = {
+    queued: Symbol("queued"), running: Symbol("running"), succeeded: Symbol("succeeded"), failed: Symbol("failed")
+  };
+  const label = state => state === nextState.queued ? "Queued" : state === nextState.running ? "Running" : state === nextState.succeeded ? "Succeeded" : "Failed";
+
+  const submit = model => {
+    const job = { id: "job-" + String(++tick).padStart(2, "0"), model, state: nextState.queued, attempts: 0, leaseUntil: 0, worker: "" };
+    jobs.push(job);
+    showStatus(`Submitted ${job.id} (${model}).`);
+    render();
+  };
+
+  const claim = (worker, leaseSeconds) => {
+    const job = jobs.find(entry => entry.state === nextState.queued || (entry.state === nextState.running && entry.leaseUntil <= now()));
+    if (!job || job.attempts >= MAX_ATTEMPTS) { showStatus("No job available to claim right now.", "warn"); return; }
+    if (!worker || !Number.isFinite(leaseSeconds) || leaseSeconds <= 0) { showStatus("Worker and positive lease are required.", "warn"); return; }
+    job.state = nextState.running;
+    job.attempts += 1;
+    job.leaseUntil = now() + leaseSeconds;
+    job.worker = worker;
+    showStatus(`${worker} claimed ${job.id}; attempt ${job.attempts} of ${MAX_ATTEMPTS}; lease ${leaseSeconds} s.`);
+    render();
+  };
+
+  const finish = (jobId, worker, succeeded) => {
+    const job = jobs.find(entry => entry.id === jobId);
+    if (!job || job.state !== nextState.running || job.worker !== worker || job.leaseUntil <= now()) {
+      showStatus(`Rejected: worker does not own an active running job ${jobId}.`, "warn");
+      return;
+    }
+    if (succeeded) {
+      job.state = nextState.succeeded; job.leaseUntil = 0; job.worker = "";
+      showStatus(`${job.id} succeeded.`);
+    } else if (job.attempts >= MAX_ATTEMPTS) {
+      job.state = nextState.failed; job.leaseUntil = 0; job.worker = "";
+      showStatus(`${job.id} failed after ${MAX_ATTEMPTS} attempts — terminal.`, "warn");
+    } else {
+      job.state = nextState.queued; job.leaseUntil = 0; job.worker = "";
+      showStatus(`${job.id} failed and is retryable (attempt ${job.attempts} of ${MAX_ATTEMPTS}).`, "warn");
+    }
+    render();
+  };
+
+  const expire = () => {
+    let last = null;
+    jobs.forEach(job => {
+      if (job.state === nextState.running && job.leaseUntil <= now() && job.attempts >= MAX_ATTEMPTS) {
+        job.state = nextState.failed; job.worker = ""; job.leaseUntil = 0;
+        last = job;
+      }
+    });
+    if (last) showStatus(`${last.id}: expired final attempt terminalized (never stranded).`, "warn");
+  };
+
+  const showStatus = (message, kind) => {
+    status.textContent = message;
+    status.classList.remove("alert", "alert-error", "alert-warn");
+    if (kind === "warn") status.classList.add("alert", "alert-warn");
+  };
+  const render = () => {
+    document.querySelector("#q-queued").textContent = jobs.filter(j => j.state === nextState.queued).length;
+    document.querySelector("#q-running").textContent = jobs.filter(j => j.state === nextState.running).length;
+    document.querySelector("#q-succeeded").textContent = jobs.filter(j => j.state === nextState.succeeded).length;
+    document.querySelector("#q-failed").textContent = jobs.filter(j => j.state === nextState.failed).length;
+    const table = document.querySelector("#job-table");
+    table.innerHTML = "";
+    if (!jobs.length) {
+      table.innerHTML = `<tr><td colspan="6" class="muted">No jobs yet — submit one to begin.</td></tr>`;
+      return;
+    }
+    jobs.slice().reverse().forEach(job => {
+      const tr = document.createElement("tr");
+      const badge = document.createElement("span");
+      badge.className = "badge " + (job.state === nextState.succeeded ? "badge-ok" : job.state === nextState.failed ? "badge-danger" : job.state === nextState.running ? "badge-warn" : "badge-neutral");
+      badge.textContent = label(job.state);
+      tr.innerHTML = `<td class="mono">${job.id}</td><td>${job.model}</td><td></td><td>${job.attempts} / ${MAX_ATTEMPTS}</td><td>${job.worker || "—"}</td><td class="mono">${job.leaseUntil ? "t+" + job.leaseUntil : "—"}</td>`;
+      tr.querySelectorAll("td")[2].appendChild(badge);
+      table.appendChild(tr);
+    });
+  };
+
+  document.querySelector("#submit-form").addEventListener("submit", event => {
+    event.preventDefault();
+    submit(document.querySelector("#job-model").value.trim());
+  });
+  document.querySelector("#claim-form").addEventListener("submit", event => {
+    event.preventDefault();
+    claim(document.querySelector("#worker").value, Number(document.querySelector("#lease").value));
+  });
+  document.querySelector("#finish-form").addEventListener("submit", event => {
+    event.preventDefault();
+    const id = document.querySelector("#finish-id").value.trim();
+    const worker = (jobs.find(j => j.id === id) || {}).worker;
+    finish(id, worker, document.querySelector("#outcome").value === "success");
+  });
+
+  submit("demo-small"); claim("worker-a", 30); render();
+})();
+</script>
+</body>
+</html>

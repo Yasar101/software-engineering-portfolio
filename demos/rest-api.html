@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive simulator of the PostgreSQL REST API portfolio project.">
+  <title>REST / PostgreSQL API — interactive console</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main class="demo-shell">
+  <p class="eyebrow">Portfolio project · PostgreSQL REST API</p>
+  <h1>Exercise the REST contract in the browser</h1>
+  <p class="muted">An interactive console over the same service semantics as the Python module:
+    validation rules, response codes, and a replaceable repository boundary. The browser demo uses
+    an <strong>in-memory adapter</strong>; the real code targets the same protocol over PostgreSQL.</p>
+
+  <div class="alert warn"><strong>Simulation note.</strong> No HTTP server or PostgreSQL is used
+    here. Responses are produced locally by a faithful translation of <code>ItemService</code>.</div>
+
+  <section class="grid grid-2" style="margin-top:1rem">
+    <div class="card">
+      <h2>Create item</h2>
+      <form id="create-form">
+        <div class="field"><label for="name">name</label><input id="name" type="text" placeholder="Demo keyboard" value="Demo keyboard"></div>
+        <div class="field"><label for="price">price_pence (non-negative integer)</label><input id="price" type="number" min="0" step="1" value="7500"></div>
+        <button type="submit">POST /items → create</button>
+      </form>
+
+      <h2 style="margin-top:1.4rem">Other calls</h2>
+      <div class="row">
+        <button type="button" class="secondary" id="call-list">GET /items</button>
+        <div class="field" style="flex:1"><label for="get-id">GET /items/:id</label>
+          <input id="get-id" type="number" min="1" step="1" value="1"></div>
+        <button type="button" class="secondary" id="call-get">Retrieve</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Response</h2>
+      <pre class="log" id="response" style="min-height:180px">// response will appear here</pre>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>Reference schema (illustrative — not exercised here)</h2>
+    <pre class="log">CREATE TABLE IF NOT EXISTS items (
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL CHECK (length(trim(name)) > 0),
+    price_pence INTEGER NOT NULL CHECK (price_pence >= 0)
+);</pre>
+    <h2>Why this is a reference implementation</h2>
+    <ul class="list">
+      <li><span><strong>Contract tested</strong> — route semantics and validation are covered by unit tests.</span><span class="badge badge-ok">Tested</span></li>
+      <li><span><strong>Adapter swappable</strong> — memory (demo) / PostgreSQL (production) behind one protocol.</span><span class="badge badge-neutral">Design</span></li>
+      <li><span><strong>Not deployed</strong> — no live HTTP server or database connection exists here.</span><span class="badge badge-warn">Honest</span></li>
+    </ul>
+    <pre class="log">python3 demo.py api</pre>
+  </section>
+</main>
+<script>
+window.DEMO = {
+  name: "PostgreSQL REST API",
+  title: "REST API — interactive contract simulator",
+  kind: "interactive console",
+  caption: "in-memory simulation",
+  repo: "https://github.com/Yasar101/postgresql-rest-api"
+};
+</script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  let items = [];
+  let nextId = 1;
+  const response = document.querySelector("#response");
+
+  const show = (status, body) => {
+    response.textContent = `HTTP ${status}\n\n` + JSON.stringify(body, null, 2);
+  };
+
+  const service = {
+    create(payload) {
+      const rawName = payload.name;
+      const name = typeof rawName === "string" ? rawName.trim() : "";
+      const price = payload.price_pence;
+      const valid = name !== "" && Number.isInteger(price) && typeof price !== "boolean" && price >= 0;
+      if (!valid) return [422, { error: "name and non-negative integer price_pence are required" }];
+      const item = { id: nextId++, name, price_pence: price };
+      items.push(item);
+      return [201, item];
+    },
+    retrieve(itemId) {
+      const item = items.find(entry => entry.id === itemId);
+      return item ? [200, item] : [404, { error: "item not found" }];
+    },
+    list() {
+      return [200, { items: [...items] }];
+    }
+  };
+
+  document.querySelector("#create-form").addEventListener("submit", event => {
+    event.preventDefault();
+    const name = document.querySelector("#name").value;
+    const price = Number(document.querySelector("#price").value);
+    const [status, body] = service.create({ name, price_pence: price });
+    show(status, body);
+  });
+
+  document.querySelector("#call-list").addEventListener("click", () => {
+    const [status, body] = service.list();
+    show(status, body);
+  });
+
+  document.querySelector("#call-get").addEventListener("click", () => {
+    const id = Number(document.querySelector("#get-id").value);
+    const [status, body] = service.retrieve(id);
+    show(status, body);
+  });
+
+  show(201, service.create({ name: "Demo keyboard", price_pence: 7500 })[1]);
+})();
+</script>
+</body>
+</html>

@@ -27,6 +27,7 @@ jobs:
         run: |
           mkdir _site
           cp index.html styles.css script.js portfolio-data.js _site/
+          cp -R demos _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

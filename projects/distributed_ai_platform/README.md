@@ -1,6 +1,6 @@
 # Worker Lease Scheduler Core
 
-**TESTED CORE** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md)
+**TESTED CORE** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md) · [Live demo](https://yasar101.github.io/software-engineering-portfolio/demos/scheduler.html)
 
 An in-memory job scheduler modelling claims, expiring leases and bounded retries.
 

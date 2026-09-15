@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My First Website</title>
+</head>
+<body>
+  <h1>Hello, welcome to my first website hosted on GitHub Pages!</h1>
+  <p>This is an example of a static website.</p>
+</body>
+</html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A mobile-first responsive web design learning project.">
+  <title>Responsive Web Foundations</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="site-header">
+    <div class="container header-layout">
+      <a class="brand" href="#top" aria-label="Responsive Web Foundations home">RWF<span>.</span></a>
+      <nav aria-label="Primary navigation">
+        <ul class="nav-list">
+          <li><a href="#principles">Principles</a></li>
+          <li><a href="#examples">Examples</a></li>
+          <li><a href="#reflection">Reflection</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero" id="top" aria-labelledby="page-title">
+      <div class="container hero-layout">
+        <div class="hero-copy">
+          <p class="kicker">Portfolio project 02</p>
+          <h1 id="page-title">One website,<br><em>every screen.</em></h1>
+          <p class="intro">What began as “Hello World!” on GitHub Pages is now an exploration of layouts that adapt to the people and devices using them.</p>
+          <a class="button" href="#principles">See the approach <span aria-hidden="true">→</span></a>
+        </div>
+        <img src="assets/responsive-devices.svg" width="720" height="520" alt="A website layout displayed across desktop, tablet, and mobile screens">
+      </div>
+    </section>
+
+    <section class="section container" id="principles" aria-labelledby="principles-title">
+      <div class="section-heading">
+        <p class="kicker">Core principles</p>
+        <h2 id="principles-title">Designed from the content out</h2>
+        <p>The layout changes only where the content needs more room, keeping the experience understandable at every width.</p>
+      </div>
+      <div class="principle-grid">
+        <article><span class="number">01</span><h3>Mobile first</h3><p>The base design fits small screens before wider arrangements are introduced.</p></article>
+        <article><span class="number">02</span><h3>Flexible by default</h3><p>Fluid widths, wrapping navigation, and scalable type avoid rigid device assumptions.</p></article>
+        <article><span class="number">03</span><h3>Accessible throughout</h3><p>Semantic landmarks, visible focus, and reduced motion support different ways of browsing.</p></article>
+      </div>
+    </section>
+
+    <section class="section showcase" id="examples" aria-labelledby="examples-title">
+      <div class="container">
+        <div class="section-heading"><p class="kicker">Layout examples</p><h2 id="examples-title">A responsive toolkit</h2></div>
+        <ul class="example-grid">
+          <li><strong>Flexbox</strong><span>Aligns navigation and actions while allowing them to wrap.</span></li>
+          <li><strong>CSS Grid</strong><span>Creates balanced cards without fixed column widths.</span></li>
+          <li><strong>Fluid sizing</strong><span>Uses relative units and <code>clamp()</code> for comfortable reading.</span></li>
+          <li><strong>Media queries</strong><span>Add layout enhancements when space becomes available.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section container reflection" id="reflection" aria-labelledby="reflection-title">
+      <div><p class="kicker">Reflection</p><h2 id="reflection-title">A step beyond the first page</h2></div>
+      <div><p>This project keeps the simplicity of a static website while introducing a more deliberate visual system and reusable layout techniques.</p><a href="#top">Back to the top <span aria-hidden="true">↑</span></a></div>
+    </section>
+  </main>
+
+  <footer><div class="container footer-layout"><p>Responsive Web Foundations</p><p>Portfolio level 02</p></div></footer>
+</body>
+</html>

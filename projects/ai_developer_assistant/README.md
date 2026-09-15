@@ -1,6 +1,6 @@
 # AI Developer Assistant Core
 
-**TESTED CORE** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md)
+**TESTED CORE** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md) · [Live demo](https://yasar101.github.io/software-engineering-portfolio/demos/assistant.html)
 
 Keyword-overlap retrieval and bounded prompt construction with a callable provider.
 

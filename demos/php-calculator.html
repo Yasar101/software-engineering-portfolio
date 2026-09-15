@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive browser simulation of the PHP calculator fundamentals portfolio project.">
+  <title>PHP Calculator — browser simulation</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main class="demo-shell">
+  <p class="eyebrow">Portfolio project · PHP Calculator Fundamentals</p>
+  <h1>Four operations, server-style validation</h1>
+  <p class="muted">A browser re-implementation of the PHP calculator's behavior: validated numeric
+    input, four arithmetic results, and explicit division-by-zero handling — reproduced here so it
+    runs without a PHP runtime.</p>
+
+  <section class="grid grid-2">
+    <div class="card">
+      <h2>Enter two numbers</h2>
+      <form id="php-calc-form">
+        <div class="field"><label for="p-first">First number</label>
+          <input id="p-first" type="number" step="any" value="12.5" required></div>
+        <div class="field"><label for="p-second">Second number</label>
+          <input id="p-second" type="number" step="any" value="4" required></div>
+        <button type="submit">Calculate</button>
+      </form>
+      <p id="php-status" class="status" role="status"></p>
+      <div class="alert warn"><strong>Simulation note.</strong> The original runs in PHP with
+        <code>htmlspecialchars</code> escaping and POST handling. This page mirrors that logic in JS
+        so it can run offline.</div>
+    </div>
+
+    <div class="card">
+      <h2>Results (server-side math)</h2>
+      <table>
+        <thead><tr><th>Operation</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>Addition</td><td id="r-add">—</td></tr>
+          <tr><td>Subtraction</td><td id="r-sub">—</td></tr>
+          <tr><td>Multiplication</td><td id="r-mul">—</td></tr>
+          <tr><td>Division</td><td id="r-div">—</td></tr>
+        </tbody>
+      </table>
+      <p class="muted" style="font-size:.82rem">Results are formatted with up to 10 decimal places;
+        division by zero renders “Cannot divide by zero”.</p>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>Validation carried over from PHP</h2>
+    <ul class="list">
+      <li><span>Non-numeric or blank input → “Enter a valid first/second number.”</span><span class="badge badge-ok">Validated</span></li>
+      <li><span>Division by zero → explicit <code>undefined</code> state, not a crash.</span><span class="badge badge-ok">Handled</span></li>
+      <li><span>Values are escaped before display (originally <code>htmlspecialchars</code>).</span><span class="badge badge-ok">Escaped</span></li>
+    </ul>
+    <pre class="log">php -S localhost:8000
+# then open http://localhost:8000</pre>
+  </section>
+</main>
+<script>
+window.DEMO = {
+  name: "PHP Calculator Fundamentals",
+  title: "PHP Calculator — browser simulation",
+  kind: "interactive demo",
+  caption: "browser simulation · no PHP needed",
+  repo: "https://github.com/Yasar101/php-calculator-fundamentals"
+};
+</script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  const form = document.querySelector("#php-calc-form");
+  const status = document.querySelector("#php-status");
+  const fields = { add: "#r-add", sub: "#r-sub", mul: "#r-mul", div: "#r-div" };
+
+  const formatNumber = value => {
+    if (!Number.isFinite(value)) return "Cannot divide by zero";
+    const rounded = Math.round((value + Number.EPSILON) * 1e10) / 1e10;
+    return String(Number(rounded));
+  };
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    const first = document.querySelector("#p-first").value.trim();
+    const second = document.querySelector("#p-second").value.trim();
+    status.classList.remove("alert", "alert-error");
+    if (first === "" || isNaN(Number(first))) {
+      status.textContent = "Enter a valid first number.";
+      status.classList.add("alert", "alert-error");
+      return;
+    }
+    if (second === "" || isNaN(Number(second))) {
+      status.textContent = "Enter a valid second number.";
+      status.classList.add("alert", "alert-error");
+      return;
+    }
+    const a = Number(first);
+    const b = Number(second);
+    const results = { add: a + b, sub: a - b, mul: a * b, div: b === 0 ? NaN : a / b };
+    Object.entries(fields).forEach(([op, selector]) => {
+      const cell = document.querySelector(selector);
+      cell.textContent = formatNumber(results[op]);
+      cell.style.color = op === "div" && results[op] === NaN ? "" : "";
+    });
+    status.textContent = "Calculated all four operations for the supplied values.";
+    status.classList.add("alert", "alert-ok");
+  });
+
+  form.dispatchEvent(new Event("submit"));
+})();
+</script>
+</body>
+</html>

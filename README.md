@@ -6,19 +6,16 @@
 
 **Yasar Ashraf · Building from programming fundamentals toward backend systems and software architecture.**
 
-A working, static portfolio presentation accompanies the tested code. Edit [`portfolio-data.js`](portfolio-data.js) to update project copy, links, classifications, or contact details.
+A working, static portfolio presentation accompanies the tested code, with **15 projects** — 10 Python software/systems cores plus 5 web foundations and PHP projects. Every project links to its public source and to an **offline, browser-rendered demo** (live page, interactive simulation, animated visualization, or architecture walk-through) with no external services and no third-party dependencies.
 
 ## View the portfolio
 
-Open [`index.html`](index.html) directly, or serve it locally:
+- **Live:** <https://yasar101.github.io/software-engineering-portfolio/>
+- **Local:** open [`index.html`](index.html) directly, or serve it with `python3 -m http.server 8000`.
 
-```bash
-python3 -m http.server 8000
-```
+Edit [`portfolio-data.js`](portfolio-data.js) to update project copy, links, classifications, or contact details. The site includes project-discipline filtering, a persisted light/dark theme, copyable demonstration commands, interactive demos, and explicit limitations. It has no analytics, forms, or third-party dependencies.
 
-The site includes project-discipline filtering, a persisted light/dark theme, copyable demonstration commands, and explicit limitations. It has no analytics, forms, or third-party dependencies.
-
-Ten small Python projects make that progression inspectable through source, offline examples, tests and explicit limitations. The systems and AI projects are tested reference cores, not deployed platforms. Python 3.11+; standard library only.
+The Python projects are 3.11+ standard-library-only implementations with explicit boundaries; the systems and AI projects are tested reference cores, not deployed platforms.
 
 ## Start here
 
@@ -31,31 +28,48 @@ Ten small Python projects make that progression inspectable through source, offl
 
 | Project | Evidence to inspect | Boundary |
 | --- | --- | --- |
-| [SQLite Task Manager](projects/task_manager/) | Parameterized queries, committed state changes, workflow tests | Local repository; no web app or authentication |
-| [Commerce Workflow](projects/microservices_commerce/) | Inventory compensation on payment rejection and exceptions | In-process model; no durable saga or payment integration |
-| [Worker Lease Scheduler](projects/distributed_ai_platform/) | Ownership, expired attempts, retry limits, defensive state copies | Single-process reference; no distributed deployment |
-| [AI Developer Assistant](projects/ai_developer_assistant/) | Offline retrieval/provider tests; context screening and size limits | Keyword retrieval and fake provider; no model-quality claim |
+| [REST / PostgreSQL Reference](https://github.com/Yasar101/postgresql-rest-api) · [demo](demos/rest-api.html) | Validation status/body pairs and repository Protocol | In-memory adapter; no running PostgreSQL server |
+| [Commerce Workflow](https://github.com/Yasar101/microservices-commerce-platform) · [demo](demos/commerce.html) | Inventory compensation on payment rejection and exceptions | In-process model; no durable saga or payment integration |
+| [Worker Lease Scheduler](https://github.com/Yasar101/distributed-ai-systems-platform) · [demo](demos/scheduler.html) | Ownership, expired attempts, retry limits, defensive state copies | Single-process reference; no distributed deployment |
+| [AI Developer Assistant](https://github.com/Yasar101/ai-developer-assistant) · [demo](demos/assistant.html) | Offline retrieval/provider tests; context screening and size limits | Keyword retrieval and fake provider; no model-quality claim |
+| [Fitness Tracking Web App](https://github.com/Yasar101/fitness-tracking-web-app) · [demo](demos/fitness-tracker/index.html) | Semantic HTML, responsive layout, client validation | Static front-end; no backend or persistence |
 
 The repository also includes a static portfolio site, CI compilation/tests on Python 3.11–3.13, and standard-library-first implementations with replaceable database, HTTP, model-provider, and worker boundaries.
 
 ## Project progression and honest demo status
 
-| Focus | Project | Evidence | Status |
-| --- | --- | --- | --- |
-| Fundamentals | [CLI Calculator](projects/cli_calculator/) | Explicit parsing, Decimal, error handling | TESTED |
-| Data modelling | [Expense Tracker](projects/expense_tracker/) | JSON round trips and category/monthly totals | TESTED |
-| API integration boundary | [Weather Core](projects/weather_dashboard/) | Response parsing and offline fixture tests | TESTED CORE |
-| Databases | [Task Manager](projects/task_manager/) | SQLite repository and state transitions | TESTED |
-| Domain modelling | [Energy Calculator](projects/energy_calculator/) | Units, Decimal and rounding | TESTED |
-| Backend architecture | [REST / PostgreSQL Reference](projects/postgres_rest_api/) | Repository protocol and HTTP-style response semantics | REFERENCE IMPLEMENTATION |
-| Systems | [Monitoring Core](projects/monitoring_dashboard/) | Locked per-metric rolling windows | TESTED CORE |
-| Failure handling | [Commerce Workflow](projects/microservices_commerce/) | Reservation and compensation | TESTED CORE |
-| AI engineering | [Developer Assistant](projects/ai_developer_assistant/) | Retrieval, prompt construction, provider injection | TESTED CORE |
-| Distributed-systems concepts | [Lease Scheduler](projects/distributed_ai_platform/) | Worker claims, leases and bounded retries | TESTED CORE |
+| Focus | Project | Evidence | Status | Demo |
+| --- | --- | --- | --- | --- |
+| Fundamentals | [CLI Calculator](https://github.com/Yasar101/python-cli-calculator) | Explicit parsing, Decimal, error handling | TESTED | [demo](demos/calculator.html) |
+| Data modelling | [Expense Tracker](https://github.com/Yasar101/personal-expense-tracker) | JSON round trips and category/monthly totals | TESTED | [demo](demos/expense-tracker.html) |
+| API integration boundary | [Weather Core](https://github.com/Yasar101/weather-dashboard) | Response parsing and offline fixture tests | TESTED CORE | [demo](demos/weather-dashboard.html) |
+| Databases | [Task Manager](https://github.com/Yasar101/task-manager-application) | SQLite repository and state transitions | TESTED | [demo](demos/task-manager.html) |
+| Domain modelling | [Energy Calculator](https://github.com/Yasar101/energy-calculator-pro) | Units, Decimal and rounding | TESTED | [demo](demos/energy-calculator.html) |
+| Backend architecture | [REST / PostgreSQL Reference](https://github.com/Yasar101/postgresql-rest-api) | Repository protocol and HTTP-style response semantics | REFERENCE IMPLEMENTATION | [demo](demos/rest-api.html) |
+| Systems | [Monitoring Core](https://github.com/Yasar101/real-time-monitoring-dashboard) | Locked per-metric rolling windows | TESTED CORE | [demo](demos/monitoring-dashboard.html) |
+| Failure handling | [Commerce Workflow](https://github.com/Yasar101/microservices-commerce-platform) | Reservation and compensation | TESTED CORE | [demo](demos/commerce.html) |
+| AI engineering | [Developer Assistant](https://github.com/Yasar101/ai-developer-assistant) | Retrieval, prompt construction, provider injection | TESTED CORE | [demo](demos/assistant.html) |
+| Distributed-systems concepts | [Lease Scheduler](https://github.com/Yasar101/distributed-ai-systems-platform) | Worker claims, leases and bounded retries | TESTED CORE | [demo](demos/scheduler.html) |
+| Front-end web | [HTML & CSS Foundations](https://github.com/Yasar101/html-css-foundations) | Semantic markup and accessible base styling | TESTED PAGE | [demo](demos/html-css-foundations/index.html) |
+| Front-end web | [Responsive Web Foundations](https://github.com/Yasar101/responsive-web-foundations) | Responsive layout and interaction patterns | TESTED PAGE | [demo](demos/responsive-web-foundations/index.html) |
+| Server-side web | [PHP Calculator Fundamentals](https://github.com/Yasar101/php-calculator-fundamentals) | PHP operator logic and input validation | TESTED LOGIC | [demo](demos/php-calculator.html) |
+| Full-stack web | [Fitness Tracking Web App](https://github.com/Yasar101/fitness-tracking-web-app) | Semantic HTML, responsive design, client validation | TESTED PAGE | [demo](demos/fitness-tracker/index.html) |
+| Full-stack web | [PHP Project Management System](https://github.com/Yasar101/php-project-management-system) | Workflow, roles and module boundaries | ARCHITECTURE REVIEW | [demo](demos/project-manager.html) |
 
-Each project is also presented in the static site with an engineering focus and a runnable local demo type.
+Every project is also presented in the static site with an engineering focus and an interactive or simulated demo; source and demo links are read from [`portfolio-data.js`](portfolio-data.js).
 
-**TESTED** means the documented local behavior has automated checks, not that every input is covered. **TESTED CORE** identifies implemented logic without a complete deployed application. **REFERENCE IMPLEMENTATION** identifies a tested service contract with missing real adapters; the PostgreSQL schema is illustrative and has not been exercised against a PostgreSQL server.
+**TESTED** means the documented local behavior has automated checks, not that every input is covered. **TESTED CORE** identifies implemented logic without a complete deployed application. **REFERENCE IMPLEMENTATION** identifies a tested service contract with missing real adapters; the PostgreSQL schema is illustrative and has not been exercised against a PostgreSQL server. **TESTED PAGE / TESTED LOGIC** means the page or logic renders/behaves as demonstrated offline; the web projects' original servers (PHP, backend) are not deployed here.
+
+## Demos
+
+Each of the 15 projects links to an offline demo under [`demos/`](demos/):
+
+- **Interactive demos** (calculator, expense tracker, task manager, energy calculator, REST console, PHP calculator) run entirely in the browser with seeded, clearly labelled data.
+- **Simulations** (weather, assistant, scheduler) animate deterministic flows instead of calling real providers or external APIs.
+- **Animated / architecture demos** (monitoring dashboard, commerce, project manager) visualize system behavior with explicit threshold and boundary labels.
+- **Copies of the original static pages** (HTML & CSS foundations, responsive foundations, fitness tracker) are served from this site for review.
+
+Demos are validated by `tests/test_demos.py` to stay offline (only `github.com` source links and localhost are allowed), reference existing files, and pass `node --check`.
 
 ## Run and test
 
@@ -96,7 +110,7 @@ python3 -m compileall -q projects
 python3 -m unittest discover -s tests -v
 ```
 
-The suite currently has **29 tests**, including failure-path regressions, relative-link validation and execution of all ten project README examples. Tests need no credentials or external services. Each project README provides a short offline Python example and a focused test command.
+The suite currently has **36 tests**, including failure-path regressions, relative-link and demo validation (offline-only URLs, file existence, JavaScript syntax) and execution of all project README examples. Tests need no credentials or external services. Each project README provides a short offline Python example and a focused test command.
 
 For a CLI example:
 
@@ -110,11 +124,13 @@ CI runs compilation and tests on Python 3.11, 3.12 and 3.13 for pushes and pull 
 ```text
 projects/                Ten isolated application packages
 tests/                   Unified unit and workflow tests
+demos/                   Offline browser demos for all 15 public projects
 docs/                    Architecture and portfolio integration notes
-.github/workflows/       Continuous integration
+.github/workflows/       Continuous integration + Pages deploy
 index.html               Static portfolio presentation
 portfolio-data.js        Central presentation content/configuration
 styles.css, script.js    Responsive design system and interactions
+demo.css, demo.js        Shared mock-header chrome for offline demos
 PORTFOLIO_AUDIT.md       Findings and evidence
 PORTFOLIO_PLAN.md        Delivery and integration roadmap
 PORTFOLIO_STATUS.md      Current validation status

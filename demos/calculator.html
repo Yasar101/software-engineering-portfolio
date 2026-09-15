@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive browser simulation of the CLI Calculator portfolio project.">
+  <title>CLI Calculator — interactive demo</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main class="demo-shell">
+  <p class="eyebrow">Portfolio project · CLI Calculator</p>
+  <h1>Safe arithmetic, decimally</h1>
+  <p class="muted">A browser simulation of the command-line calculator. It evaluates one
+    three-token expression at a time and rejects unsafe or non-finite input, matching the
+    audited Python logic.</p>
+
+  <section class="card grid grid-2" style="align-items:center">
+    <div>
+      <form id="calc-form">
+        <div class="field">
+          <label for="expr">Expression</label>
+          <input id="expr" name="expr" type="text" inputmode="decimal" autocomplete="off"
+                 value="12.5 * 4" aria-describedby="expr-help">
+          <p id="expr-help" class="muted" style="font-size:.8rem;margin:.3rem 0 0">Format: <code>NUMBER (+ | − | × | ÷) NUMBER</code></p>
+        </div>
+        <div class="row">
+          <button type="submit">Calculate</button>
+          <button type="button" class="secondary" id="example-btn">Try an example</button>
+        </div>
+      </form>
+      <p id="status" class="status" role="status"></p>
+    </div>
+    <div>
+      <div class="metrics" style="grid-template-columns:1fr">
+        <div class="metric">
+          <div class="label">Result (Decimal)</div>
+          <div class="value" id="result" style="font-size:2rem">50.0</div>
+          <div class="help">Displayed without floating-point drift</div>
+        </div>
+      </div>
+      <div class="alert warn" style="margin-top:.8rem"><strong>Simulation note.</strong>
+        This runs the calculator's exact grammar and checks in JavaScript. The real
+        implementation executes in the Python command line.</div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:1rem">
+    <h2>How the demo works</h2>
+    <ul class="list">
+      <li><span><strong>Grammar check</strong> — exactly three tokens with a supported operator, or an error is shown.</span><span class="badge badge-ok">Safe</span></li>
+      <li><span><strong>Finite operands</strong> — non-finite numbers are rejected before arithmetic.</span><span class="badge badge-ok">Checked</span></li>
+      <li><span><strong>Zero division</strong> — reported as <code>cannot divide by zero</code>.</span><span class="badge badge-ok">Handled</span></li>
+      <li><span><strong>Precision</strong> — results are rounded to a predictable fixed point, like <code>Decimal</code> in Python.</span><span class="badge badge-neutral">Simulation</span></li>
+    </ul>
+    <h3 style="margin-top:1rem">Run the original on the command line</h3>
+    <pre class="log">python3 -m projects.cli_calculator.calculator "12.5 * 4"
+50.0</pre>
+  </section>
+</main>
+<script>
+window.DEMO = {
+  name: "CLI Calculator",
+  title: "CLI Calculator — safe arithmetic demo",
+  kind: "interactive demo",
+  caption: "browser simulation",
+  repo: "https://github.com/Yasar101/python-cli-calculator"
+};
+</script>
+<script src="demo.js"></script>
+<script>
+(() => {
+  const form = document.querySelector("#calc-form");
+  const input = document.querySelector("#expr");
+  const result = document.querySelector("#result");
+  const status = document.querySelector("#status");
+  const examples = ["12.5 * 4", "1 / 0", "0.1 + 0.2", "__import__('os')", "NaN + 1", "2 - 7.25"];
+
+  const formatDecimal = value => {
+    if (!Number.isFinite(value)) return "non-finite";
+    const rounded = Math.round((value + Number.EPSILON) * 1e10) / 1e10;
+    return String(Number(rounded));
+  };
+
+  const evaluate = expression => {
+    const parts = expression.trim().split(/\s+/);
+    const operators = { "+": (a, b) => a + b, "-": (a, b) => a - b, "*": (a, b) => a * b, "/": (a, b) => a / b };
+    if (parts.length !== 3 || !(parts[1] in operators)) {
+      throw new Error("expected: NUMBER (+|-|*|/) NUMBER");
+    }
+    const left = Number(parts[0]);
+    const right = Number(parts[2]);
+    if (parts[0] === "" || parts[2] === "" || !Number.isFinite(left) || !Number.isFinite(right)) {
+      throw new Error("operands must be numbers");
+    }
+    if (!Number.isFinite(parts[0]) || !Number.isFinite(parts[2])) {
+      throw new Error("operands must be finite numbers");
+    }
+    if (parts[1] === "/" && right === 0) {
+      throw new Error("cannot divide by zero");
+    }
+    return operators[parts[1]](left, right);
+  };
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    try {
+      const value = evaluate(input.value);
+      result.textContent = formatDecimal(value);
+      result.style.color = "";
+      status.textContent = "Accepted: expression evaluated with a safe, finite result.";
+      status.classList.remove("alert", "alert-error");
+    } catch (error) {
+      result.textContent = "—";
+      result.style.color = "var(--danger)";
+      status.textContent = `Rejected: ${error.message}`;
+      status.classList.add("alert", "alert-error");
+    }
+  });
+
+  document.querySelector("#example-btn").addEventListener("click", () => {
+    const next = examples[Math.floor(Math.random() * examples.length)];
+    input.value = next;
+    form.dispatchEvent(new Event("submit"));
+  });
+
+  form.dispatchEvent(new Event("submit"));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title description">
+  <title id="title">A learning journey</title><desc id="description">A simple landscape with a winding path leading toward the sunrise.</desc>
+  <rect width="640" height="420" rx="24" fill="#eef5ff"/><circle cx="490" cy="110" r="62" fill="#fbbf24"/>
+  <path d="M0 260 150 145l125 95 120-120 245 185v115H0Z" fill="#93c5fd"/><path d="M0 315 145 230l120 75 130-92 245 135v72H0Z" fill="#2563eb"/>
+  <path d="M265 420c15-75 74-88 54-151 45 57 37 105 64 151Z" fill="#fff" opacity=".9"/>
+</svg>

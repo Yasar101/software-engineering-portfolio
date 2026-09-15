@@ -1,6 +1,6 @@
 # Weather Dashboard Core
 
-**TESTED CORE** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md)
+**TESTED CORE** · [Portfolio](../../README.md) · [Architecture](../../docs/ARCHITECTURE.md) · [Live demo](https://yasar101.github.io/software-engineering-portfolio/demos/weather-dashboard.html)
 
 An Open-Meteo response parser, display model and HTTP fetch function; no dashboard UI.
 
